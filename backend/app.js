@@ -248,6 +248,105 @@ app.route("/user/:email")
     })
 });
 
+//ROUTES FOR ALL Admins 
+app.route("/admins")
+.get(function (req,res) {
+    User.find({isAdmin: true},function (err,foundUsers) {
+        if(err){
+            res.send(err);
+        } else{
+            res.send(foundUsers);
+        }
+    })
+})
+.post(function (req,res) {
+    const newUser = new User({
+        name: req.body.name,
+        email:req.body.email,
+        phone: req.body.phone,
+        age: req.body.age,
+        isAdmin: true
+    });
+    
+    User.findOne({email: req.body.email},function (err,foundUser) {
+        if(foundUser){
+            res.send("User with this email already present");
+        } else if(err){
+            res.send(err);
+        }
+        else{
+            newUser.save(function (er) {
+                if(er){
+                    res.send(er);
+                } else{
+                    res.send("Successfully saved!");
+                }
+            });
+        }
+    });
+    
+})
+.delete(function (req,res) {
+    User.deleteMany({isAdmin: true},function (err) {
+        if(err){
+            res.send(err);
+        } else{
+            res.send("Successfully deleted all Admins!");
+        }
+    })
+});
+
+//ROUTES FOR A SPECIFIC Admin
+app.route("/admin/:email")
+.get(function (req,res) {
+    User.findOne({email: req.params.email,isAdmin:true},function (err,foundUser) {
+        if(foundUser){
+            res.send(foundUser);
+        } else{
+            res.send("No User found!");
+        }
+    });
+})
+.put(function (req,res) {
+    User.findOneAndUpdate(
+        {email: req.params.email,isAdmin:true}, {name: req.body.name}, function (err) {
+            if(err){
+                res.send(err);
+            } else{
+                res.send("Successfully updated!");
+            }
+        }
+    );
+})
+.patch(function (req,res) {
+    User.updateOne(
+        {email: req.params.email,isAdmin:true},
+        {$set : req.body},
+        function (err) {
+            if(err){
+                res.send(err);
+            } else{
+                res.send("Successfully updated!");
+            }
+        }
+    );
+})
+.delete(function (req,res) {
+    User.findOne({email: req.params.email,isAdmin:true},function (err,foundUser) {
+        if(foundUser){
+            User.remove({email: req.params.email}, function (er) {
+                if(er)
+                    res.send(er);
+                else
+                    res.send("Successfully deleted")
+            })
+        } 
+        else{
+            res.send("Admin not found!");
+        }
+    })
+});
+
 
 app.listen(process.env.PORT || 3000,function (req,res) {
     console.log("Server is running ....");
