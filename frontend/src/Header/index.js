@@ -13,8 +13,10 @@ import {
   ListItemIcon,
   Tooltip,
   Modal,
-  Backdrop
+  Backdrop,
+  Popover
 } from '@mui/material';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 import {
   Login,
@@ -22,10 +24,11 @@ import {
   ShoppingCartOutlined ,
   ShoppingCart,
   Logout,
-  Person
+  Person,
+  ExpandMore,
 } from '@mui/icons-material';
 
-import { styled, alpha } from '@mui/material/styles';
+import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import Profile from "./Profile";
@@ -40,10 +43,10 @@ const SearchI = styled('div')(({ theme }) => ({
   '&:hover': {
     backgroundColor: alpha(theme.palette.common.white, 0.25),
   },
-  marginRight: theme.spacing(2),
+  marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(5),
+    marginLeft: theme.spacing(1),
     width: 'auto',
   },
 }));
@@ -65,17 +68,23 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
-    marginLeft : 0,
-    [theme.breakpoints.up('md')]: {
-      width: '30ch',
+    [theme.breakpoints.up('sm')]: {
+      width: '20ch',
+      '&:focus': {
+        width: '30ch',
+      },
     },
   },
 }));
 
-export default function PrimarySearchAppBar() {
+
+const PrimarySearchAppBar = () => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
+  const theme = useTheme();
+  const matches = useMediaQuery(theme.breakpoints.up('md'));
 
+  const [drawer, setDrawer] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [openProf, setProf] = React.useState(false);
@@ -87,6 +96,7 @@ export default function PrimarySearchAppBar() {
   const handleProfile = () => {
     setProf(true);
     setAnchorEl(null);
+    setDrawer(null);
   }
 
   const responseGoogle = async (response) => {
@@ -174,6 +184,36 @@ export default function PrimarySearchAppBar() {
     </Menu>
   );
 
+  const renderItem = (
+      <Box style={{paddingLeft:2, paddingRight:15}}>
+        <IconButton
+          size="large"
+          color="inherit"
+          >
+          <Tooltip title="Cart">
+          <Badge color="error">
+            <ShoppingCartOutlined />
+          </Badge>
+          </Tooltip>
+        </IconButton>
+        <IconButton
+          size="large"
+          edge="end"
+          aria-label="account of current user"
+          aria-controls={"menuId"}
+          aria-haspopup="true"
+          onClick={handleSignIn}
+          color="inherit"
+        >
+        {user!==null && !Array.isArray(user) && typeof user === 'object'?
+        <Tooltip title="Account Details">
+          <Avatar alt={user.profileObj.name} src={user.profileObj.imageUrl} sx={{ width: 28, height: 28 }} />
+        </Tooltip>
+        :<Tooltip title="Google Login"><Login/></Tooltip>}
+        </IconButton>
+      </Box>
+    )
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{backgroundColor : "#993399"}}>
@@ -195,42 +235,36 @@ export default function PrimarySearchAppBar() {
             >
             e-Commerce Project
           </Typography>
-          <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{flexGrow:1}}/>
           <SearchI>
             <SearchIconWrapper>
               <Search/>
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Looking for books? 👀"
+              placeholder="Looking for books?👀"
               inputProps={{ 'aria-label': 'search'}}
               sx={{fontFamily: 'McLaren, cursive'}}
             />
           </SearchI>
-          <Box>
-            <IconButton
-              size="large"
-              color="inherit"
+          {matches?renderItem:<div><Tooltip title="Expand"><IconButton color="inherit" onClick={(event)=>{setDrawer(event.currentTarget)}}>
+              <ExpandMore/>
+            </IconButton></Tooltip>
+            <Popover
+              id='simple-popover'
+              open={Boolean(drawer)}
+              anchorEl={drawer}
+              onClose={()=>setDrawer(null)}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
               >
-              <Badge color="error">
-                <ShoppingCartOutlined />
-              </Badge>
-            </IconButton>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={"menuId"}
-              aria-haspopup="true"
-              onClick={handleSignIn}
-              color="inherit"
-            >
-            {user!==null && !Array.isArray(user) && typeof user === 'object'?
-            <Tooltip title="Account Details">
-              <Avatar alt={user.profileObj.name} src={user.profileObj.imageUrl} sx={{ width: 28, height: 28 }} />
-            </Tooltip>
-            :<Tooltip title="Google Login"><Login/></Tooltip>}
-            </IconButton>
-          </Box>
+            {renderItem}
+          </Popover></div>}
         </Toolbar>
         <Modal
           className={classes.modal}
@@ -264,3 +298,5 @@ const useStyles = makeStyles(theme => ({
         border: '2px solid #000',
     },
 }));
+
+export default PrimarySearchAppBar;
