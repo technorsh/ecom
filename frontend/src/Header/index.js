@@ -82,7 +82,8 @@ const PrimarySearchAppBar = () => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('md'));
+  const matchem = useMediaQuery(theme.breakpoints.up('md'));
+  const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
   const [drawer, setDrawer] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -100,8 +101,9 @@ const PrimarySearchAppBar = () => {
   }
 
   const responseGoogle = async (response) => {
+    console.log(response)
     if(response.error === 'popup_closed_by_user' ){ setUser(null);enqueueSnackbar("Pop Up Closed by user!!!", { variant:"error" });}
-    else{ setUser(response);enqueueSnackbar('Login Successfull!!!', { variant:"success" });}
+    else{ setUser(response);enqueueSnackbar('Login Successfull!!!', { variant:"success" });setDrawer(null);setAnchorEl(null);}
   }
 
   const { signIn } = useGoogleLogin({
@@ -116,7 +118,7 @@ const PrimarySearchAppBar = () => {
     onFailure : (res) => console.log(res),
     clientId : CLIENTID,
     cookiePolicy : 'single_host_origin',
-    onLogoutSuccess : (res) => {setUser(null);enqueueSnackbar('LogOut Successfull!!!', { variant:"success" });}
+    onLogoutSuccess : (res) => {setUser(null);enqueueSnackbar('LogOut Successfull!!!', { variant:"success" });setDrawer(null);setAnchorEl(null);}
   })
 
   const handleSignIn = (event) => {
@@ -185,7 +187,7 @@ const PrimarySearchAppBar = () => {
   );
 
   const renderItem = (
-      <Box style={{paddingLeft:2, paddingRight:15}}>
+      <Box style={{paddingLeft:2, paddingRight:15, marginRight:0 }}>
         <IconButton
           size="large"
           color="inherit"
@@ -215,15 +217,15 @@ const PrimarySearchAppBar = () => {
     )
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{backgroundColor : "#993399"}}>
-        <Toolbar>
+    <Box sx={{ flexGrow: 1}}>
+      <AppBar position="static" sx={{backgroundColor : "#993399", paddingRight:0, paddingLeft:matches?0:2 }}>
+        <Toolbar sx={{ margin: 0, padding: 0 }}>
           <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ mr: 2 }}
+            xs={{ mr: 0 }}
             >
             <ShoppingCart/>
           </IconButton>
@@ -241,12 +243,12 @@ const PrimarySearchAppBar = () => {
               <Search/>
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Looking for books?👀"
+              placeholder="Looking for books ?"
               inputProps={{ 'aria-label': 'search'}}
               sx={{fontFamily: 'McLaren, cursive'}}
             />
           </SearchI>
-          {matches?renderItem:<div><Tooltip title="Expand"><IconButton color="inherit" onClick={(event)=>{setDrawer(event.currentTarget)}}>
+          {matchem?renderItem:<div><Tooltip title="Expand"><IconButton color="inherit" onClick={(event)=>{setDrawer(event.currentTarget)}}>
               <ExpandMore/>
             </IconButton></Tooltip>
             <Popover
@@ -289,11 +291,6 @@ const PrimarySearchAppBar = () => {
 }
 
 const useStyles = makeStyles(theme => ({
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     paper: {
         border: '2px solid #000',
     },
