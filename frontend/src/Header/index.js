@@ -14,7 +14,19 @@ import {
   Tooltip,
   Modal,
   Backdrop,
-  Popover
+  Popover,
+  Slide,
+  Dialog,
+  List,
+  ListItem,
+  ListItemText,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  Divider,
+  Button,
+  DialogActions,
+  Grid
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 
@@ -26,12 +38,15 @@ import {
   Logout,
   Person,
   ExpandMore,
+  Close,
+  Edit,
+  Save
 } from '@mui/icons-material';
 
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { useGoogleLogin, useGoogleLogout } from 'react-google-login';
-import Profile from "./Profile";
+import UpdateProfile from "./Profile";
 import { useSnackbar } from 'notistack';
 
 const CLIENTID = "1042323156437-h0qe843489vh5lgh3g9696mucd728dqa.apps.googleusercontent.com";
@@ -77,7 +92,6 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
 const PrimarySearchAppBar = () => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
@@ -85,10 +99,12 @@ const PrimarySearchAppBar = () => {
   const matchem = useMediaQuery(theme.breakpoints.up('md'));
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const [drawer, setDrawer] = React.useState(null);
+  const [drawer, setDrawer] = React.useState(false);
+  const [cart, setCart] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [openProf, setProf] = React.useState(false);
+  const [openUpdateProf, setUpdateProf] = React.useState(false);
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -166,18 +182,19 @@ const PrimarySearchAppBar = () => {
               transform: 'translateY(-50%) rotate(45deg)',
               zIndex: 0,
             },
+            fontFamily: 'McLaren, cursive',
           },
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-      <MenuItem onClick={handleProfile}>
+      <MenuItem onClick={handleProfile} sx={{fontFamily: 'McLaren, cursive', }}>
         <ListItemIcon>
           <Person fontSize="small" />
         </ListItemIcon>
         Profile
       </MenuItem>
-      <MenuItem onClick={handleSignOut}>
+      <MenuItem onClick={handleSignOut} sx={{fontFamily: 'McLaren, cursive', }}>
         <ListItemIcon>
           <Logout fontSize="small" />
         </ListItemIcon>
@@ -187,10 +204,11 @@ const PrimarySearchAppBar = () => {
   );
 
   const renderItem = (
-      <Box style={{paddingLeft:2, paddingRight:15, marginRight:0 }}>
+      <Box style={{paddingLeft:2, paddingRight:15, marginRight:0}}>
         <IconButton
           size="large"
           color="inherit"
+          onClick={() => setCart(true)}
           >
           <Tooltip title="Cart">
           <Badge color="error">
@@ -215,6 +233,10 @@ const PrimarySearchAppBar = () => {
         </IconButton>
       </Box>
     )
+
+  const Transition = React.forwardRef((props, ref) => {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
 
   return (
     <Box sx={{ flexGrow: 1}}>
@@ -268,24 +290,113 @@ const PrimarySearchAppBar = () => {
             {renderItem}
           </Popover></div>}
         </Toolbar>
-        <Modal
-          className={classes.modal}
-          aria-labelledby="transition-modal-title"
-          aria-describedby="transition-modal-description"
+        <Dialog
+          open={openUpdateProf}
+          onClose={()=>setUpdateProf(false)}
+          scroll={'body'}
+          >
+          <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',}}>
+            <Grid container justifyContent="space-between" alignItems={"center"}>
+              <Grid item>Update Profile</Grid>
+              <Grid item>
+                <IconButton onClick={()=>setUpdateProf(false)}>
+                  <Close/>
+                </IconButton>
+              </Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent dividers={true}>
+            <DialogContentText
+              id="scroll-dialog-description"
+              tabIndex={-1}
+              >
+              <UpdateProfile user={user}/>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button startIcon={<Save />} style={{paddingRight: 14 }} onClick={()=>setUpdateProf(false)}>
+              <Typography sx={{fontFamily: 'McLaren, cursive',textTransform:"none"}}>Save</Typography>
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
           open={openProf}
           onClose={()=>setProf(false)}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: 500,
-          }}
+          scroll={'body'}
           >
-            <div className={classes.paper}>
-              <Profile user={user}/>
-            </div>
-        </Modal>
+          <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',}}>
+            <Grid container justifyContent="center" alignItems={"center"}>
+              <Grid item>User Profile</Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText
+              id="scroll-dialog-description"
+              tabIndex={-1}
+              sx={{fontFamily: 'McLaren, cursive'}}
+              >
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <Avatar alt={user!==null?user.profileObj.name:""} src={user!==null?user.profileObj.imageUrl:""}/>
+              </Box>
+              <Box display="flex" alignItems="center" justifyContent="center" sx={{paddingTop:1}}>
+                {user!==null?user.profileObj.name:""}
+              </Box>
+              <Box display="flex" alignItems="center" justifyContent="center" sx={{paddingTop:1}}>
+                {user!==null?user.profileObj.email:""}
+              </Box>
+              <Grid container justifyContent="flex-left" sx={{paddingTop:1}} spacing={1}>
+                <Grid item xs={6}>Age : N.A. </Grid>
+                <Grid item xs={6}>Mobile : N.A.</Grid>
+                <Grid item xs={12}>Address : N.A.</Grid>
+              </Grid>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button startIcon={<Edit />} style={{paddingRight: 14 }} onClick={()=>{setProf(false);setUpdateProf(true);}}>
+              <Typography sx={{fontFamily: 'McLaren, cursive',textTransform:"none"}}>Edit</Typography>
+            </Button>
+          </DialogActions>
+        </Dialog>
       </AppBar>
       {renderMenu}
+      <Dialog
+        fullScreen
+        open={cart}
+        onClose={()=>{setCart(false)}}
+        TransitionComponent={Transition}
+        >
+        <AppBar sx={{ position: 'relative' }}>
+          <Toolbar>
+            <IconButton
+              edge="start"
+              color="inherit"
+              onClick={()=>{setCart(false)}}
+              aria-label="close"
+              >
+              <Close />
+            </IconButton>
+            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
+              Sound
+            </Typography>
+            <Button autoFocus color="inherit" onClick={()=>setCart(false)}>
+              save
+            </Button>
+          </Toolbar>
+        </AppBar>
+        <List>
+          <ListItem button>
+            <ListItemText primary="Phone ringtone" secondary="Titania" />
+          </ListItem>
+          <Divider />
+          <ListItem button>
+            <ListItemText
+              primary="Default notification ringtone"
+              secondary="Tethys"
+            />
+          </ListItem>
+        </List>
+      </Dialog>
     </Box>
   );
 }
