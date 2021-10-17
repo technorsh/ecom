@@ -20,15 +20,24 @@ import {
   List,
   ListItem,
   ListItemText,
+  Drawer,
   DialogTitle,
   DialogContent,
   DialogContentText,
   Divider,
   Button,
   DialogActions,
-  Grid
+  Grid,
+  Zoom,
+  Fade,
+  Grow,
+  Card,
+  CardMedia,
+  CardActions,
+  CardContent
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import books from "../books.json";
 
 import {
   Login,
@@ -40,7 +49,8 @@ import {
   ExpandMore,
   Close,
   Edit,
-  Save
+  AddShoppingCart,
+  Save,
 } from '@mui/icons-material';
 
 import { styled, alpha, useTheme } from '@mui/material/styles';
@@ -238,6 +248,52 @@ const PrimarySearchAppBar = () => {
     return <Slide direction="up" ref={ref} {...props} />;
   });
 
+  const data = books.slice(0,10).map((value, key)=>{
+    console.log(value);
+    return(
+      <Grid item id={key} xs={3}>
+        <Grow
+          in={true}
+          style={{ transformOrigin: '0 0 0' }}
+          {...(true? { timeout: 1000 } : {})}
+          >
+          <Card sx={{ maxWidth: 250 , fontFamily: 'McLaren, cursive'}}>
+            <CardMedia
+              component="img"
+              alt={value.title}
+              sx={{height:160}}
+              image={value.thumbnailUrl}
+            />
+            <CardContent>
+              <Typography style={{fontFamily: 'McLaren, cursive'}} gutterBottom variant="h6">
+                {value.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
+                <Grid item>
+                  {value.authors.map((value,key)=>{
+                    return(
+                      <Typography style={{fontFamily: 'McLaren, cursive'}}>
+                        {value}
+                      </Typography>
+                    )
+                  })}
+                </Grid>
+                <Grid item>
+                  <IconButton size="small"><AddShoppingCart/></IconButton>
+                </Grid>
+              </Grid>
+            </CardActions>
+          </Card>
+        </Grow>
+      </Grid>
+    )
+  })
+
   return (
     <Box sx={{ flexGrow: 1}}>
       <AppBar position="static" sx={{backgroundColor : "#993399", paddingRight:0, paddingLeft:matches?0:2 }}>
@@ -359,44 +415,29 @@ const PrimarySearchAppBar = () => {
           </DialogActions>
         </Dialog>
       </AppBar>
+
       {renderMenu}
-      <Dialog
-        fullScreen
+      <Box sx={{flexGrow:1, position:"absolute",padding:5}}>
+        <Grid container direction={"row"} alignItems="center" justifyContent="center">
+          {data}
+        </Grid>
+      </Box>
+      <Drawer
+        anchor="bottom"
         open={cart}
         onClose={()=>{setCart(false)}}
-        TransitionComponent={Transition}
         >
-        <AppBar sx={{ position: 'relative' }}>
-          <Toolbar>
-            <IconButton
-              edge="start"
-              color="inherit"
-              onClick={()=>{setCart(false)}}
-              aria-label="close"
-              >
-              <Close />
-            </IconButton>
-            <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Sound
-            </Typography>
-            <Button autoFocus color="inherit" onClick={()=>setCart(false)}>
-              save
-            </Button>
-          </Toolbar>
-        </AppBar>
-        <List>
-          <ListItem button>
-            <ListItemText primary="Phone ringtone" secondary="Titania" />
-          </ListItem>
-          <Divider />
-          <ListItem button>
-            <ListItemText
-              primary="Default notification ringtone"
-              secondary="Tethys"
-            />
-          </ListItem>
-        </List>
-      </Dialog>
+        <div
+          tabIndex={0}
+          role="button"
+          onClick={()=>{setCart(false)}}
+          onKeyDown={()=>{setCart(false)}}
+          >
+          <Box sx={{ display: 'flex' }}>
+             {data}
+          </Box>
+        </div>
+      </Drawer>
     </Box>
   );
 }
