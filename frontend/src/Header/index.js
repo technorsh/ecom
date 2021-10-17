@@ -14,9 +14,30 @@ import {
   Tooltip,
   Modal,
   Backdrop,
-  Popover
+  Popover,
+  Slide,
+  Dialog,
+  List,
+  ListItem,
+  ListItemText,
+  Drawer,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  Divider,
+  Button,
+  DialogActions,
+  Grid,
+  Zoom,
+  Fade,
+  Grow,
+  Card,
+  CardMedia,
+  CardActions,
+  CardContent
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import books from "../books.json";
 
 import {
   Login,
@@ -26,12 +47,16 @@ import {
   Logout,
   Person,
   ExpandMore,
+  Close,
+  Edit,
+  AddShoppingCart,
+  Save,
 } from '@mui/icons-material';
 
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { useGoogleLogin, useGoogleLogout } from 'react-google-login';
-import Profile from "./Profile";
+import UpdateProfile from "./Profile";
 import { useSnackbar } from 'notistack';
 
 const CLIENTID = "1042323156437-h0qe843489vh5lgh3g9696mucd728dqa.apps.googleusercontent.com";
@@ -77,17 +102,19 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-
 const PrimarySearchAppBar = () => {
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
-  const matches = useMediaQuery(theme.breakpoints.up('md'));
+  const matchem = useMediaQuery(theme.breakpoints.up('md'));
+  const matches = useMediaQuery(theme.breakpoints.up('sm'));
 
-  const [drawer, setDrawer] = React.useState(null);
+  const [drawer, setDrawer] = React.useState(false);
+  const [cart, setCart] = React.useState(null);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [user, setUser] = React.useState(null);
   const [openProf, setProf] = React.useState(false);
+  const [openUpdateProf, setUpdateProf] = React.useState(false);
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -100,8 +127,9 @@ const PrimarySearchAppBar = () => {
   }
 
   const responseGoogle = async (response) => {
+    console.log(response)
     if(response.error === 'popup_closed_by_user' ){ setUser(null);enqueueSnackbar("Pop Up Closed by user!!!", { variant:"error" });}
-    else{ setUser(response);enqueueSnackbar('Login Successfull!!!', { variant:"success" });}
+    else{ setUser(response);enqueueSnackbar('Login Successfull!!!', { variant:"success" });setDrawer(null);setAnchorEl(null);}
   }
 
   const { signIn } = useGoogleLogin({
@@ -116,7 +144,7 @@ const PrimarySearchAppBar = () => {
     onFailure : (res) => console.log(res),
     clientId : CLIENTID,
     cookiePolicy : 'single_host_origin',
-    onLogoutSuccess : (res) => {setUser(null);enqueueSnackbar('LogOut Successfull!!!', { variant:"success" });}
+    onLogoutSuccess : (res) => {setUser(null);enqueueSnackbar('LogOut Successfull!!!', { variant:"success" });setDrawer(null);setAnchorEl(null);}
   })
 
   const handleSignIn = (event) => {
@@ -164,18 +192,19 @@ const PrimarySearchAppBar = () => {
               transform: 'translateY(-50%) rotate(45deg)',
               zIndex: 0,
             },
+            fontFamily: 'McLaren, cursive',
           },
         }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-      <MenuItem onClick={handleProfile}>
+      <MenuItem onClick={handleProfile} sx={{fontFamily: 'McLaren, cursive', }}>
         <ListItemIcon>
           <Person fontSize="small" />
         </ListItemIcon>
         Profile
       </MenuItem>
-      <MenuItem onClick={handleSignOut}>
+      <MenuItem onClick={handleSignOut} sx={{fontFamily: 'McLaren, cursive', }}>
         <ListItemIcon>
           <Logout fontSize="small" />
         </ListItemIcon>
@@ -185,10 +214,11 @@ const PrimarySearchAppBar = () => {
   );
 
   const renderItem = (
-      <Box style={{paddingLeft:2, paddingRight:15}}>
+      <Box style={{paddingLeft:2, paddingRight:15, marginRight:0}}>
         <IconButton
           size="large"
           color="inherit"
+          onClick={() => setCart(true)}
           >
           <Tooltip title="Cart">
           <Badge color="error">
@@ -214,16 +244,66 @@ const PrimarySearchAppBar = () => {
       </Box>
     )
 
+  const Transition = React.forwardRef((props, ref) => {
+    return <Slide direction="up" ref={ref} {...props} />;
+  });
+
+  const data = books.slice(0,10).map((value, key)=>{
+    console.log(value);
+    return(
+      <Grid item id={key} xs={3}>
+        <Grow
+          in={true}
+          style={{ transformOrigin: '0 0 0' }}
+          {...(true? { timeout: 1000 } : {})}
+          >
+          <Card sx={{ maxWidth: 250 , fontFamily: 'McLaren, cursive'}}>
+            <CardMedia
+              component="img"
+              alt={value.title}
+              sx={{height:160}}
+              image={value.thumbnailUrl}
+            />
+            <CardContent>
+              <Typography style={{fontFamily: 'McLaren, cursive'}} gutterBottom variant="h6">
+                {value.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+
+              </Typography>
+            </CardContent>
+            <CardActions>
+              <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
+                <Grid item>
+                  {value.authors.map((value,key)=>{
+                    return(
+                      <Typography style={{fontFamily: 'McLaren, cursive'}}>
+                        {value}
+                      </Typography>
+                    )
+                  })}
+                </Grid>
+                <Grid item>
+                  <IconButton size="small"><AddShoppingCart/></IconButton>
+                </Grid>
+              </Grid>
+            </CardActions>
+          </Card>
+        </Grow>
+      </Grid>
+    )
+  })
+
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{backgroundColor : "#993399"}}>
-        <Toolbar>
+    <Box sx={{ flexGrow: 1}}>
+      <AppBar position="static" sx={{backgroundColor : "#993399", paddingRight:0, paddingLeft:matches?0:2 }}>
+        <Toolbar sx={{ margin: 0, padding: 0 }}>
           <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ mr: 2 }}
+            xs={{ mr: 0 }}
             >
             <ShoppingCart/>
           </IconButton>
@@ -241,12 +321,12 @@ const PrimarySearchAppBar = () => {
               <Search/>
             </SearchIconWrapper>
             <StyledInputBase
-              placeholder="Looking for books?👀"
+              placeholder="Looking for books ?"
               inputProps={{ 'aria-label': 'search'}}
               sx={{fontFamily: 'McLaren, cursive'}}
             />
           </SearchI>
-          {matches?renderItem:<div><Tooltip title="Expand"><IconButton color="inherit" onClick={(event)=>{setDrawer(event.currentTarget)}}>
+          {matchem?renderItem:<div><Tooltip title="Expand"><IconButton color="inherit" onClick={(event)=>{setDrawer(event.currentTarget)}}>
               <ExpandMore/>
             </IconButton></Tooltip>
             <Popover
@@ -266,34 +346,103 @@ const PrimarySearchAppBar = () => {
             {renderItem}
           </Popover></div>}
         </Toolbar>
-        <Modal
-          className={classes.modal}
-          aria-labelledby="transition-modal-title"
-          aria-describedby="transition-modal-description"
+        <Dialog
+          open={openUpdateProf}
+          onClose={()=>setUpdateProf(false)}
+          scroll={'body'}
+          >
+          <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',}}>
+            <Grid container justifyContent="space-between" alignItems={"center"}>
+              <Grid item>Update Profile</Grid>
+              <Grid item>
+                <IconButton onClick={()=>setUpdateProf(false)}>
+                  <Close/>
+                </IconButton>
+              </Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent dividers={true}>
+            <DialogContentText
+              id="scroll-dialog-description"
+              tabIndex={-1}
+              >
+              <UpdateProfile user={user}/>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button startIcon={<Save />} style={{paddingRight: 14 }} onClick={()=>setUpdateProf(false)}>
+              <Typography sx={{fontFamily: 'McLaren, cursive',textTransform:"none"}}>Save</Typography>
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
           open={openProf}
           onClose={()=>setProf(false)}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: 500,
-          }}
+          scroll={'body'}
           >
-            <div className={classes.paper}>
-              <Profile user={user}/>
-            </div>
-        </Modal>
+          <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',}}>
+            <Grid container justifyContent="center" alignItems={"center"}>
+              <Grid item>User Profile</Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText
+              id="scroll-dialog-description"
+              tabIndex={-1}
+              sx={{fontFamily: 'McLaren, cursive'}}
+              >
+              <Box display="flex" alignItems="center" justifyContent="center">
+                <Avatar alt={user!==null?user.profileObj.name:""} src={user!==null?user.profileObj.imageUrl:""}/>
+              </Box>
+              <Box display="flex" alignItems="center" justifyContent="center" sx={{paddingTop:1}}>
+                {user!==null?user.profileObj.name:""}
+              </Box>
+              <Box display="flex" alignItems="center" justifyContent="center" sx={{paddingTop:1}}>
+                {user!==null?user.profileObj.email:""}
+              </Box>
+              <Grid container justifyContent="flex-left" sx={{paddingTop:1}} spacing={1}>
+                <Grid item xs={6}>Age : N.A. </Grid>
+                <Grid item xs={6}>Mobile : N.A.</Grid>
+                <Grid item xs={12}>Address : N.A.</Grid>
+              </Grid>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button startIcon={<Edit />} style={{paddingRight: 14 }} onClick={()=>{setProf(false);setUpdateProf(true);}}>
+              <Typography sx={{fontFamily: 'McLaren, cursive',textTransform:"none"}}>Edit</Typography>
+            </Button>
+          </DialogActions>
+        </Dialog>
       </AppBar>
+
       {renderMenu}
+      <Box sx={{flexGrow:1, position:"absolute",padding:5}}>
+        <Grid container direction={"row"} alignItems="center" justifyContent="center">
+          {data}
+        </Grid>
+      </Box>
+      <Drawer
+        anchor="bottom"
+        open={cart}
+        onClose={()=>{setCart(false)}}
+        >
+        <div
+          tabIndex={0}
+          role="button"
+          onClick={()=>{setCart(false)}}
+          onKeyDown={()=>{setCart(false)}}
+          >
+          <Box sx={{ display: 'flex' }}>
+             {data}
+          </Box>
+        </div>
+      </Drawer>
     </Box>
   );
 }
 
 const useStyles = makeStyles(theme => ({
-    modal: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     paper: {
         border: '2px solid #000',
     },
