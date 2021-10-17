@@ -1,11 +1,11 @@
 const mongoose =require("mongoose")
 
-mongoose.connect("mongodb://localhost:27017/ecomDB" , { useNewUrlParser: true,  useUnifiedTopology:true});
+mongoose.connect("mongodb+srv://tawi:tawi123@cluster0.byvam.mongodb.net/ecomDB" , { useNewUrlParser: true,  useUnifiedTopology:true});
 
 const userSchema =new mongoose.Schema({
     name: String,
     email: {
-        type: String, 
+        type: String,
         required: true
     },
     phone: [Number],
@@ -22,8 +22,8 @@ const userSchema =new mongoose.Schema({
         state: String
     },
     isAdmin: {
-        type: Boolean, 
-        required: true, 
+        type: Boolean,
+        required: true,
         default: false
     },
     wishlist: [String],

@@ -1,6 +1,6 @@
 const mongoose =require("mongoose")
 
-mongoose.connect("mongodb://localhost:27017/ecomDB" , { useNewUrlParser: true,  useUnifiedTopology:true});
+mongoose.connect("mongodb+srv://tawi:tawi123@cluster0.byvam.mongodb.net/ecomDB" , { useNewUrlParser: true,  useUnifiedTopology:true});
 
 const bookSchema =new mongoose.Schema({
     title: String,
@@ -8,16 +8,16 @@ const bookSchema =new mongoose.Schema({
     version: String,
     publication: String,
     isbn: {
-        type: String, 
+        type: String,
         required: true
     },
     rating:  {
-        type: Number, 
+        type: Number,
         default: 1
     },
     category: [String],
     quantity: {
-        type: Number, 
+        type: Number,
         default: 0
     }
 })
