@@ -1,10 +1,11 @@
 const express = require('express');
 const ejs = require("ejs");
 const bodyParser = require('body-parser');
+const serverless = require('serverless-http');
 
-const user = require('./routes/user.js');
-const book = require('./routes/book.js');
-const admin = require('./routes/admin.js');
+const user = require('./../routes/user.js');
+const book = require('./../routes/book.js');
+const admin = require('./../routes/admin.js');
 
 var app = express();
 var cors = require('cors')
@@ -28,3 +29,5 @@ app.use('/admin',admin);
 app.listen(port, (req,res) => {
         console.log("Server is running ....");
     })
+
+module.exports.handler = serverless(app);
