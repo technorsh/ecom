@@ -1,5 +1,6 @@
 import './App.css';
 import PrimarySearchAppBar from './Header';
+import React from "react";
 
 function App() {
   return (
