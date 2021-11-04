@@ -50,9 +50,9 @@ router.delete("/", (req,res,next) => {
         {isAdmin: true}, 
         (err) => {
             if(err){
-                res.statusCode = 200;
                 return res.send(err);
             } else{
+                res.statusCode = 200;
                 return res.send({ message: "Successfully deleted all admins!" } );
             }
     })
@@ -71,7 +71,7 @@ router.get("/email", (req,res,next) => {
             }
     });
 })
-router.put("/email", (req,res,next) =>  {
+router.put("/:email", (req,res,next) =>  {
     User.findOneAndUpdate(
         {email: req.params.email,isAdmin:true}, 
         {name: req.body.name}, 
@@ -85,7 +85,7 @@ router.put("/email", (req,res,next) =>  {
         }
     );
 })
-router.patch("/email", (req,res,next) => {
+router.patch("/:email", (req,res,next) => {
     User.updateOne(
         {email: req.params.email,isAdmin:true},
         {$set : req.body},
