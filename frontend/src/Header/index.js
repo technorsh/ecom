@@ -60,7 +60,7 @@ import { makeStyles } from '@mui/styles';
 import { useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import UpdateProfile from "./Profile";
 import { useSnackbar } from 'notistack';
-
+import BookDetails from "./BookDetails";
 const CLIENTID = "1042323156437-h0qe843489vh5lgh3g9696mucd728dqa.apps.googleusercontent.com";
 
 const SearchI = styled('div')(({ theme }) => ({
@@ -176,11 +176,12 @@ const PrimarySearchAppBar = () => {
       UserExist(response.profileObj.email)
       .then(res => res.json())
       .then((res) => {
+        console.log(res);
         if(res.message){
           setForm(true);
           setRespon(response);
         }else{
-          setInfo({email:res.email,age:res.age,phone:res.phone[0],name:res.name})
+          setInfo({email:res.email,age:res.age,phone:'',name:res.name}) //res.phone[0]
         }
         setUser(response);
       })
@@ -306,53 +307,13 @@ const PrimarySearchAppBar = () => {
 
   const data = books.slice(0,10).map((value, key)=>{
     return(
-      <Grid item id={key} xs={3}>
-        <Grow
-          in={true}
-          style={{ transformOrigin: '0 0 0' }}
-          {...(true? { timeout: 1000 } : {})}
-          >
-          <Card sx={{ maxWidth: 250 , fontFamily: 'McLaren, cursive'}}>
-            <CardMedia
-              component="img"
-              alt={value.title}
-              sx={{height:160}}
-              image={value.thumbnailUrl}
-            />
-            <CardContent>
-              <Typography style={{fontFamily: 'McLaren, cursive'}} gutterBottom variant="h6">
-                {value.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
-                <Grid item>
-                  {value.authors.map((value,key)=>{
-                    return(
-                      <Typography style={{fontFamily: 'McLaren, cursive'}}>
-                        {value}
-                      </Typography>
-                    )
-                  })}
-                </Grid>
-                <Grid item>
-                  <IconButton size="small"><AddShoppingCart/></IconButton>
-                </Grid>
-              </Grid>
-            </CardActions>
-          </Card>
-        </Grow>
-      </Grid>
+      <BookDetails key={key} value={value} matchem={matchem} matches={matches}/>
     )
   })
 
   return (
     <Box sx={{ flexGrow: 1}}>
       <AppBar position="static" sx={{backgroundColor : "#993399", paddingRight:0, paddingLeft:matches?0:2 }}>
-
         <Toolbar sx={{ margin: 0, padding: 0 }}>
           <IconButton
             size="large"
@@ -369,7 +330,7 @@ const PrimarySearchAppBar = () => {
             component="div"
             sx={{ display: { xs: 'none', sm: 'block' }, fontFamily: 'McLaren, cursive'}}
             >
-            e-Commerce Project
+            Book Smith - Donate Books & Earn Rewards
           </Typography>
           <Box sx={{flexGrow:1}}/>
           <SearchI>
@@ -508,8 +469,8 @@ const PrimarySearchAppBar = () => {
         </Dialog>
       </AppBar>
       {renderMenu}
-      <Box sx={{flexGrow:1, position:"absolute",padding:5}}>
-        <Grid container direction={"row"} alignItems="center" justifyContent="center">
+      <Box sx={{flexGrow:1, position:"absolute",padding:5, paddingTop:2}}>
+        <Grid container direction={"row"} alignItems="flex-start" spacing={1} justifyContent="flex-start">
           {data}
         </Grid>
       </Box>
