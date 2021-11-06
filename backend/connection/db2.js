@@ -1,6 +1,7 @@
+require("dotenv").config()
 const mongoose =require("mongoose")
 
-mongoose.connect("mongodb+srv://tawi:tawi123@cluster0.byvam.mongodb.net/ecomDB" , { useNewUrlParser: true,  useUnifiedTopology:true});
+mongoose.connect(process.env.URL , { useNewUrlParser: true,  useUnifiedTopology:true});
 
 const bookSchema =new mongoose.Schema({
     title: String,
@@ -15,12 +16,18 @@ const bookSchema =new mongoose.Schema({
         type: Number,
         default: 1
     },
-    category: [String],
+    category: {
+        type: [String], default: []
+    },
     quantity: {
         type: Number,
         default: 0
-    }
-})
+    },
+    },
+    {timestamps: true}
+)
+
+bookSchema.index({title: 'text'});
 
 const Book= mongoose.model("Book",bookSchema);
 
