@@ -119,4 +119,47 @@ router.delete("/:isbn", (req,res,next) =>  {
     })
 });
 
+//Fetch 10 books in most recently added order
+router.get("/search/recentlyadded", (req,res,next) => {
+    Book
+    .find({})
+    .sort({createdAt: -1})
+    .limit(10)
+    .exec(function (err,foundBooks) {
+        if(foundBooks){
+            res.statusCode = 200;
+            return res.send(foundBooks);
+        } else{
+            return res.send({ message: "No Book found!" } );
+        }
+    })
+})
+
+//Search by title - full text search
+router.get("/search/title/:reqtitle", (req,res,next) => {
+    Book
+    .find({$text: {$search: req.params.reqtitle}})
+    .exec(function (err,foundBooks) {
+        if(foundBooks){
+            res.statusCode = 200;
+            return res.send(foundBooks);
+        } else{
+            return res.send({ message: "No Book found!" } );
+        }
+    })
+})
+//Search by title - partial text search
+router.get("/search/related/:reqtitle", (req,res,next) => {
+    Book
+    .find({ "title": { "$regex": req.params.reqtitle, "$options": "i" } })
+    .exec(function (err,foundBooks) {
+        if(foundBooks){
+            res.statusCode = 200;
+            return res.send(foundBooks);
+        } else{
+            return res.send({ message: "No Book found!" } );
+        }
+    })
+})
+
 module.exports = router;
