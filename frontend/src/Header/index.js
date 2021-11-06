@@ -38,8 +38,6 @@ import {
   CardContent
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import books from "../books.json";
-
 import {
   Login,
   Search,
@@ -55,12 +53,16 @@ import {
   Cancel
 } from '@mui/icons-material';
 
+import { setBookCount } from "./../store/actions"
+import { connect } from 'react-redux';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
 import { useGoogleLogin, useGoogleLogout } from 'react-google-login';
 import UpdateProfile from "./Profile";
 import { useSnackbar } from 'notistack';
 import BookDetails from "./BookDetails";
+import CartItem from "./../Cart/CartItem";
+
 const CLIENTID = "1042323156437-h0qe843489vh5lgh3g9696mucd728dqa.apps.googleusercontent.com";
 
 const SearchI = styled('div')(({ theme }) => ({
@@ -104,13 +106,14 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const PrimarySearchAppBar = () => {
+const PrimarySearchAppBar = (props) => {
+
+  const { books } = props;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
   const matchem = useMediaQuery(theme.breakpoints.up('md'));
   const matches = useMediaQuery(theme.breakpoints.up('sm'));
-
   const [drawer, setDrawer] = React.useState(false);
   const [info, setInfo] = React.useState({email:null,age:null,phone:null});
   const [openForm, setForm] = React.useState(false);
@@ -141,7 +144,7 @@ const PrimarySearchAppBar = () => {
         setInfo({email:info.email, age:res.age, phone:res.phone})
       })
     }
-  },[])
+  },[books])
 
   const UserExist = async (user) => {
     return await fetch("https://ecom-ducs-api.herokuapp.com/user/"+user);
@@ -176,12 +179,12 @@ const PrimarySearchAppBar = () => {
       UserExist(response.profileObj.email)
       .then(res => res.json())
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         if(res.message){
           setForm(true);
           setRespon(response);
         }else{
-          setInfo({email:res.email,age:res.age,phone:'',name:res.name}) //res.phone[0]
+          setInfo({email:res.email,age:res.age,phone:res.phone,name:res.name}) //res.phone[0]
         }
         setUser(response);
       })
@@ -307,7 +310,7 @@ const PrimarySearchAppBar = () => {
 
   const data = books.slice(0,10).map((value, key)=>{
     return(
-      <BookDetails key={key} value={value} matchem={matchem} matches={matches}/>
+      <BookDetails key={key} value={value} matchem={matchem} matches={matches} carts={cart} setCart={setCart}/>
     )
   })
 
@@ -478,15 +481,17 @@ const PrimarySearchAppBar = () => {
         anchor="bottom"
         open={cart}
         onClose={()=>{setCart(false)}}
+        ModalProps={{
+          keepMounted: true,
+        }}
         >
         <div
           tabIndex={0}
           role="button"
           onClick={()=>{setCart(false)}}
-          onKeyDown={()=>{setCart(false)}}
           >
           <Box sx={{ display: 'flex' }}>
-             {data}
+             <CartItem setCart={setCart}/>
           </Box>
         </div>
       </Drawer>
@@ -500,4 +505,17 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default PrimarySearchAppBar;
+function mapDispatchToProps(dispatch) {
+  return {
+
+  };
+}
+
+const mapStateToProps = state => {
+  return { books: state.books };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(PrimarySearchAppBar);

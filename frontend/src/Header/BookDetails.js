@@ -37,7 +37,7 @@ import {
   CardActions,
   CardContent
 } from '@mui/material';
-
+import CartItem from "./../Cart/CartItem";
 import {
   Login,
   Search,
@@ -52,18 +52,46 @@ import {
   Save,
   Cancel
 } from '@mui/icons-material';
+import CountButton from "./../Cart/CountButton";
+import { setBookCount, addBookToTempCart, addBookToCart } from "./../store/actions"
+import { connect } from 'react-redux';
+import { useSnackbar } from 'notistack';
 
 const BookDetails = (props) => {
-
   const [openBook, setOpenBook] = React.useState(false);
-  const {value, matchem, matches, key} = props;
-  console.log(value)
+  const { enqueueSnackbar } = useSnackbar();
+  const { carts, setCart, cart, book, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
 
-  let auth = "";
+console.log(props);
 
-  let author = value.authors.map((value,key)=>{
-    auth = value + ", " + auth;
-  })
+  const checkBook = () => {
+    let check = false;
+    let info = {}
+    for(let i = 0; i < cart.length; i++){
+      if(cart[i].book.isbn === value.isbn){
+          check = true;
+          info = {book:cart[i].book, count:cart[i].count}
+          console.log(info)
+          break;
+      }
+    }
+    if(check){
+      addBookToTempCart(info);
+    }else{
+      addBookToTempCart({book:value,count:count});
+    }
+  }
+
+  const checkItem = () => {
+    if(count > 0){
+      addBookToCart(tempCart);
+      addBookToTempCart({book:[],count:0})
+      enqueueSnackbar("Book added to Cart", { variant:"success" });
+      setOpenBook(false);
+    }else{
+      enqueueSnackbar("Add atleast 1 book", { variant:"info" });
+    }
+  }
 
   return(
     <>
@@ -76,7 +104,7 @@ const BookDetails = (props) => {
           <Card sx={{ maxWidth: 250 , fontFamily: 'McLaren, cursive',}}>
             <CardMedia
               title="View Book Details"
-              onClick={()=>{setOpenBook(true);}}
+              onClick={()=>{setOpenBook(true);checkBook()}}
               component="img"
               alt={value.title}
               sx={{height:160,cursor: "pointer"}}
@@ -108,7 +136,7 @@ const BookDetails = (props) => {
                       })}
                     </Grid>
                     <Grid item>
-                      <IconButton size="small" onClick={()=>{setOpenBook(true);}}><AddShoppingCart/></IconButton>
+                      <IconButton size="small" onClick={()=>{setOpenBook(true);checkBook();}}><AddShoppingCart/></IconButton>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -119,7 +147,7 @@ const BookDetails = (props) => {
       </Grid>
       <Dialog
         open={openBook}
-        onClose={()=>{setOpenBook(false)}}
+        onClose={()=>{setOpenBook(false);setBookCount(0);addBookToTempCart({book:[],count:0})}}
         scroll={'body'}
         >
         <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',fontWeight:"bold"}}>
@@ -129,7 +157,7 @@ const BookDetails = (props) => {
         </DialogTitle>
         <DialogContent>
         <Grid item>
-          <Card sx={{ maxWidth:600, fontFamily: 'McLaren, cursive'}}>
+          <Card sx={{ maxWidth:650, fontFamily: 'McLaren, cursive'}}>
             <CardMedia
               component="img"
               alt={value.title}
@@ -146,16 +174,16 @@ const BookDetails = (props) => {
                   </div>
                 </Grid>
                 <Grid item>
-                  <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
+                  <Grid container justifyContent={"space-between"} style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
                     <Grid item xs={8}>
-                      <Grid container direction="row" alignItems= "center">
+                      <Grid container justifyContent={"flex-start"} direction="row" alignItems= "center">
                         <Grid item>
                           <Typography style={{fontFamily: 'McLaren, cursive', textAlign:"left", fontWeight:"bold", color:"green"}} gutterBottom>
                             Author :
                           </Typography>
                         </Grid>
                         <Grid item>
-                        <div style={{paddingLeft:5, overflow: "hidden", textOverflow: "ellipsis", width: '14rem'}} title={value.authors.join(", ")}>
+                        <div style={{paddingLeft:5, overflow: "hidden", textOverflow: "ellipsis", width: matchem?'14em':'16em'}} title={value.authors.join(", ")}>
                           <Typography style={{textAlign:"left", color:"blue", fontWeight:"bold", fontFamily: 'McLaren, cursive'}} noWrap>
                             {value.authors.join(", ")}
                           </Typography>
@@ -163,8 +191,15 @@ const BookDetails = (props) => {
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item>
-                      <IconButton size="small"><AddShoppingCart/></IconButton>
+                    <Grid item xs={!matchem?12:4}>
+                      <Grid container direction="row" justifyContent={"flex-end"} alignItems="center" spacing={1}>
+                        <Grid item>
+                          <CountButton />
+                        </Grid>
+                        <Grid item>
+                          <IconButton size="small" onClick={()=>{checkItem()}}><AddShoppingCart/></IconButton>
+                        </Grid>
+                      </Grid>
                     </Grid>
                   </Grid>
                   <Grid container direction="row">
@@ -225,8 +260,24 @@ const BookDetails = (props) => {
 
         </DialogActions>
       </Dialog>
+
     </>
   )
 }
 
-export default BookDetails;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    addBookToTempCart: book => dispatch(addBookToTempCart(book)),
+    setBookCount: count => dispatch(setBookCount(count)),
+    addBookToCart: book => dispatch(addBookToCart(book)),
+  };
+}
+
+const mapStateToProps = (state) => {
+  return { cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(BookDetails);
