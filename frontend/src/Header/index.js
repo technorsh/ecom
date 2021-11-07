@@ -473,7 +473,7 @@ const PrimarySearchAppBar = (props) => {
       </AppBar>
       {renderMenu}
       <Box sx={{flexGrow:1, position:"absolute",padding:5, paddingTop:2}}>
-        <Grid container direction={"row"} alignItems="flex-start" spacing={1} justifyContent="flex-start">
+        <Grid container direction={"row"} alignItems={matchem?"flex-start":"center"} spacing={1} justifyContent={matchem?"flex-start":"center"}>
           {data}
         </Grid>
       </Box>

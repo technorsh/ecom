@@ -95,13 +95,13 @@ console.log(props);
 
   return(
     <>
-      <Grid item id={key} xs={matches?(matchem?3:4):6}>
+      <Grid item id={key} xs={matches?(matchem?3:4):12}>
         <Grow
           in={true}
           style={{ transformOrigin: '0 0 0' }}
           {...(true? { timeout: 1000 } : {})}
           >
-          <Card sx={{ maxWidth: 250 , fontFamily: 'McLaren, cursive',}}>
+          <Card sx={{ maxWidth: 300 , fontFamily: 'McLaren, cursive',}}>
             <CardMedia
               title="View Book Details"
               onClick={()=>{setOpenBook(true);checkBook()}}
@@ -111,23 +111,23 @@ console.log(props);
               image={value.thumbnailUrl}
             />
             <CardContent>
-              <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
-                <Grid item>
+              <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}}>
+                <Grid item >
                   <div style={{overflow: "hidden", textOverflow: "ellipsis", width: '13rem'}} title={value.title}>
                     <Typography noWrap style={{fontFamily: 'McLaren, cursive', fontSize:14, textAlign:"left", fontWeight:"bold"}} gutterBottom variant="h6">
                       {value.title}
                     </Typography>
                   </div>
                 </Grid>
-                <Grid item>
-                  <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
+                <Grid item style={{flexGrow:1}}>
+                  <Grid container direction="row" justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}}>
                     <Grid item>
                       <Typography style={{fontFamily: 'McLaren, cursive', fontSize:14, textAlign:"left", fontWeight:"bold", color:"green"}} gutterBottom variant="h6">
                         Author :
                       </Typography>
                       {value.authors.slice(0,1).map((value,key)=>{
                         return(
-                          <div style={{overflow: "hidden", textOverflow: "ellipsis", width: '11rem'}} title={value}>
+                          <div style={{overflow: "hidden", textOverflow: "ellipsis", width: '12rem'}} title={value}>
                             <Typography style={{textAlign:"left", fontFamily: 'McLaren, cursive',fontSize:14}} noWrap>
                               {value}
                             </Typography>
@@ -149,6 +149,7 @@ console.log(props);
         open={openBook}
         onClose={()=>{setOpenBook(false);setBookCount(0);addBookToTempCart({book:[],count:0})}}
         scroll={'body'}
+        sx={{padding:0}}
         >
         <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',fontWeight:"bold"}}>
           <Grid container justifyContent="center" alignItems={"center"}>
@@ -157,7 +158,7 @@ console.log(props);
         </DialogTitle>
         <DialogContent>
         <Grid item>
-          <Card sx={{ maxWidth:650, fontFamily: 'McLaren, cursive'}}>
+          <Card sx={{ maxWidth:650, fontFamily: 'McLaren, cursive', margin:0}} >
             <CardMedia
               component="img"
               alt={value.title}
@@ -174,8 +175,8 @@ console.log(props);
                   </div>
                 </Grid>
                 <Grid item>
-                  <Grid container justifyContent={"space-between"} style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
-                    <Grid item xs={8}>
+                  <Grid container direction="row" justifyContent={"space-between"} style={{flexGrow:1,fontFamily: 'McLaren, cursive'}} alignItems="flex-start">
+                    <Grid item>
                       <Grid container justifyContent={"flex-start"} direction="row" alignItems= "center">
                         <Grid item>
                           <Typography style={{fontFamily: 'McLaren, cursive', textAlign:"left", fontWeight:"bold", color:"green"}} gutterBottom>
@@ -183,16 +184,16 @@ console.log(props);
                           </Typography>
                         </Grid>
                         <Grid item>
-                        <div style={{paddingLeft:5, overflow: "hidden", textOverflow: "ellipsis", width: matchem?'14em':'16em'}} title={value.authors.join(", ")}>
-                          <Typography style={{textAlign:"left", color:"blue", fontWeight:"bold", fontFamily: 'McLaren, cursive'}} noWrap>
-                            {value.authors.join(", ")}
-                          </Typography>
-                        </div>
+                          <div style={{paddingLeft:5, overflow: "hidden", textOverflow: "ellipsis", width: !matches?'12em':'14em'}} title={value.authors.join(", ")}>
+                            <Typography style={{textAlign:"left", color:"blue", fontWeight:"bold", fontFamily: 'McLaren, cursive'}} noWrap>
+                              {value.authors.join(", ")}
+                            </Typography>
+                          </div>
                         </Grid>
                       </Grid>
                     </Grid>
-                    <Grid item xs={!matchem?12:4}>
-                      <Grid container direction="row" justifyContent={"flex-end"} alignItems="center" spacing={1}>
+                    <Grid item  style={{flexGrow:1}}>
+                      <Grid container direction="row" alignItems="flex-end" justifyContent="flex-end" spacing={1}>
                         <Grid item>
                           <CountButton />
                         </Grid>
@@ -203,7 +204,7 @@ console.log(props);
                     </Grid>
                   </Grid>
                   <Grid container direction="row">
-                    <Grid item direction="row">
+                    <Grid item>
                       <Typography style={{fontWeight:"bold",fontFamily: 'McLaren, cursive'}}>
                         Description :
                       </Typography>
