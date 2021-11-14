@@ -174,7 +174,10 @@ const PrimarySearchAppBar = (props) => {
   }
 
   React.useEffect(() => {
+<<<<<<< HEAD
     setLoading(true);
+=======
+>>>>>>> 8470897b549a8529ca4e7baad895c27b6f832df8
     searchData();
     // console.log(value)
   },[value])
