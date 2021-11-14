@@ -114,7 +114,7 @@ console.log(props);
               <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}}>
                 <Grid item >
                   <div style={{overflow: "hidden", textOverflow: "ellipsis", width: '13rem'}} title={value.title}>
-                    <Typography noWrap style={{fontFamily: 'McLaren, cursive', fontSize:14, textAlign:"left", fontWeight:"bold"}} gutterBottom variant="h6">
+                    <Typography noWrap style={{fontFamily: 'McLaren, cursive', fontSize:18, textAlign:"left", fontWeight:"bold"}} gutterBottom variant="h6">
                       {value.title}
                     </Typography>
                   </div>
@@ -169,7 +169,7 @@ console.log(props);
               <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}} alignItems="center">
                 <Grid item>
                   <div style={{overflow: "hidden", textOverflow: "ellipsis"}} title={value.title}>
-                    <Typography noWrap style={{fontFamily: 'McLaren, cursive', fontSize:18, textAlign:"left", fontWeight:"bold"}} gutterBottom variant="h6">
+                    <Typography noWrap style={{fontFamily: 'McLaren, cursive', fontSize:20, textAlign:"left", fontWeight:"bold"}} gutterBottom variant="h6">
                       {value.title}
                     </Typography>
                   </div>
@@ -235,7 +235,7 @@ console.log(props);
                     </Grid>
                     <Grid item>
                       <Typography style={{paddingLeft:2, fontFamily: 'McLaren, cursive'}}>
-                        {new Date(value.createdAt).toString()}
+                        {new Date(value.publishedAt).toDateString()}
                       </Typography>
                     </Grid>
                   </Grid>
