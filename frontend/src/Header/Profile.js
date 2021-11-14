@@ -19,10 +19,12 @@ import {
   Close
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
+import { setInfo } from "./../store/actions"
+import { connect } from 'react-redux';
 
-export default function UpdateProfile(props){
+function UpdateProfile(props){
 
-  const { info, user, UserExist, openUpdateProf, setUpdateProf } = props;
+  const { info, user, UserExist, openUpdateProf, setUpdateProf, setInfo } = props;
   const { enqueueSnackbar } = useSnackbar();
   const [data, setData] = React.useState({age:info.age,phone:info.phone});
 
@@ -36,6 +38,7 @@ export default function UpdateProfile(props){
     then(res => res.json())
     .then((res)=>{
       setUpdateProf(false);
+      setInfo({email: info.email, name:info.name, age:data.age, phone:data.phone})
       enqueueSnackbar(res.message, { variant:"success" });
     })
   }
@@ -135,3 +138,18 @@ export default function UpdateProfile(props){
       </Dialog>
   )
 }
+
+function mapDispatchToProps(dispatch) {
+  return {
+    setInfo : info => dispatch(setInfo(info)),
+  };
+}
+
+const mapStateToProps = state => {
+  return { info : state.info };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(UpdateProfile);

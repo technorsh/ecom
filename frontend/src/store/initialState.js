@@ -5,6 +5,10 @@ export const initialState = {
     count : 0
   },
   cart:[],
-  user:[],
+  info:{
+    email:null,
+    age:null,
+    phone:null
+  },
   isLogin:false,
 }

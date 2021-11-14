@@ -1,4 +1,8 @@
-import { ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./constants";
+import { SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./constants";
+
+export const setInfo = ( info ) => {
+  return { type : SETINFO, info }
+}
 
 export const setBooks = ( books ) => {
   return { type : SETBOOKS, books }
