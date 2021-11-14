@@ -235,7 +235,7 @@ console.log(props);
                     </Grid>
                     <Grid item>
                       <Typography style={{paddingLeft:2, fontFamily: 'McLaren, cursive'}}>
-                        {new Date(value.publishedDate["$date"]).toString()}
+                        {new Date(value.createdAt).toString()}
                       </Typography>
                     </Grid>
                   </Grid>
@@ -247,7 +247,7 @@ console.log(props);
                     </Grid>
                     <Grid item>
                       <Typography style={{paddingLeft:2, fontFamily: 'McLaren, cursive'}}>
-                        { value.categories.join(", ")}
+                        { value.category.join(", ")}
                       </Typography>
                     </Grid>
                   </Grid>
