@@ -350,17 +350,9 @@ const PrimarySearchAppBar = (props) => {
 
   return (
     <Box sx={{ flexGrow: 1}}>
-      <AppBar position="static" sx={{backgroundColor : "#993399", paddingRight:0, paddingLeft:matches?0:2 }}>
+      <AppBar position="static" sx={{backgroundColor : "#334756", paddingRight:0, paddingLeft:matches?0:2 }}>
         <Toolbar sx={{ margin: 0, padding: 0 }}>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            xs={{ mr: 0 }}
-            >
-            <ShoppingCart/>
-          </IconButton>
+          <img alt="logo" src="https://cdn-icons.flaticon.com/png/512/3038/premium/3038089.png?token=exp=1636905570~hmac=68c8521b663f502bc94ed22db20c3c12" style={{ width: "28px", height: "28px", paddingRight:"8px" }}/>
           <Typography
             variant="h6"
             noWrap
@@ -517,13 +509,13 @@ const PrimarySearchAppBar = (props) => {
           !loading?
           Array.isArray(books) && books.length === 0?
           <Grid item>
-            <Typography noWrap style={{fontFamily: 'McLaren, cursive',color:"#993399", fontSize:18, textAlign:"center", fontWeight:"bold"}} gutterBottom variant="h6">
+            <Typography noWrap style={{fontFamily: 'McLaren, cursive',color:"#334756", fontSize:18, textAlign:"center", fontWeight:"bold"}} gutterBottom variant="h6">
               *** Book Not Found ***
             </Typography>
           </Grid>
           :<div/>:
           <Grid item>
-            <ReactLoading type={"bars"} color={"#993399"} height={100} width={80} />
+            <ReactLoading type={"bars"} color={"#334756"} height={matchem?100:50} width={matchem?80:50} />
           </Grid>
         }
         </Grid>
