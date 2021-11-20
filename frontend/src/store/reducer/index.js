@@ -1,5 +1,5 @@
 import { initialState } from "./../initialState";
-import { SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
+import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
 
 const updatedData = ( cart, data ) => {
   let newState = []
@@ -40,6 +40,16 @@ const checkExist = (state, index) => {
 const rootReducer = (state = initialState, action) => {
   // console.log(state)
   switch(action.type){
+    case SETLOGIN:{
+      return Object.assign({},state,{
+        books:state.books,
+        tempCart:state.tempCart,
+        cart:state.cart,
+        info:state.info,
+        isLogin:action.isLogin
+      })
+      break;
+    }
     case SETBOOKS:{
       return Object.assign({},state,{
         books:action.books,

@@ -1,7 +1,10 @@
-import { SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./constants";
+import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./constants";
 
 export const setInfo = ( info ) => {
   return { type : SETINFO, info }
+}
+export const setLogin = ( isLogin ) => {
+  return { type : SETLOGIN, isLogin }
 }
 
 export const setBooks = ( books ) => {

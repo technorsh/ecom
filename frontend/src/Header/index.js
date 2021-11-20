@@ -55,7 +55,7 @@ import {
 } from '@mui/icons-material';
 import ReactLoading from 'react-loading';
 
-import { setBooks, setBookCount, setInfo } from "./../store/actions"
+import { setBooks, setBookCount, setInfo, setLogin } from "./../store/actions"
 import { connect } from 'react-redux';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -110,7 +110,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const PrimarySearchAppBar = (props) => {
 
-  const { loading, setLoading, books, info, setBooks, setInfo } = props;
+  const { loading, setLoading, books, info, setBooks, setInfo, isLogin, setLogin } = props;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
@@ -141,13 +141,14 @@ const PrimarySearchAppBar = (props) => {
 
   React.useEffect(() => {
     // setLoading(true);
-    if(user !== null && info.email!=null){
+    if(user !== null && info.email!=null && isLogin){
       UserExist(info.email)
       .then(res => res.json())
       .then((res)=>{
         console.log(res)
         // setUser({email:info.email, age:res.age, phone:res.phone})
         setInfo({email:info.email, age:res.age, phone:res.phone})
+        setLogin(true);
       })
     }
   },[books])
@@ -199,13 +200,17 @@ const PrimarySearchAppBar = (props) => {
     .then((res) => {
       console.log(res);
       setForm(false);
+      setLogin(true);
       enqueueSnackbar(res.message, { variant:"success" });
+    }).catch((err)=>{
+      setLogin(false);
     })
   }
 
   const responseGoogle = async (response) => {
     if(response.error === 'popup_closed_by_user' ){
       setUser(null);
+      setLogin(false);
       enqueueSnackbar("Pop Up Closed by user!!!", { variant:"error" });
     }
     else{
@@ -220,7 +225,10 @@ const PrimarySearchAppBar = (props) => {
         }else{
           setInfo({email:res.email,age:res.age,phone:res.phone,name:res.name}) //res.phone[0]
         }
+        setLogin(true);
         setUser(response);
+      }).catch((err)=>{
+        setLogin(false);
       })
       setDrawer(null);setAnchorEl(null);
     }
@@ -238,7 +246,7 @@ const PrimarySearchAppBar = (props) => {
     onFailure : (res) => console.log(res),
     clientId : CLIENTID,
     cookiePolicy : 'single_host_origin',
-    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);}
+    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);setLogin(false)}
   })
 
   const handleSignIn = (event) => {
@@ -560,11 +568,13 @@ function mapDispatchToProps(dispatch) {
   return {
     setInfo : info => dispatch(setInfo(info)),
     setBooks: books => dispatch(setBooks(books)),
+    setLogin: isLogin => dispatch(setLogin(isLogin))
   };
 }
 
 const mapStateToProps = state => {
-  return { books: state.books, info : state.info };
+  // console.log(state);
+  return { books: state.books, info : state.info, isLogin : state.isLogin };
 };
 
 export default connect(

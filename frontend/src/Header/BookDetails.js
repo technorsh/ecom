@@ -53,14 +53,14 @@ import {
   Cancel
 } from '@mui/icons-material';
 import CountButton from "./../Cart/CountButton";
-import { setBookCount, addBookToTempCart, addBookToCart } from "./../store/actions"
+import { setBookCount, addBookToTempCart, addBookToCart, setLogin } from "./../store/actions"
 import { connect } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 const BookDetails = (props) => {
   const [openBook, setOpenBook] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { carts, setCart, cart, book, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
+  const { isLogin, setLogin, carts, setCart, cart, book, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
 
 console.log(props);
 
@@ -75,7 +75,7 @@ console.log(props);
           break;
       }
     }
-    if(check){
+    if(check && isLogin){
       addBookToTempCart(info);
     }else{
       addBookToTempCart({book:value,count:count});
@@ -83,13 +83,17 @@ console.log(props);
   }
 
   const checkItem = () => {
-    if(count > 0){
+    if(count > 0 && isLogin){
       addBookToCart(tempCart);
       addBookToTempCart({book:[],count:0})
       enqueueSnackbar("Book added to Cart", { variant:"success" });
       setOpenBook(false);
     }else{
-      enqueueSnackbar("Add atleast 1 book", { variant:"info" });
+      if(!isLogin){
+        enqueueSnackbar("Login First!!", { variant:"info" });
+      }else{
+        enqueueSnackbar("Add atleast 1 book", { variant:"info" });
+      }
     }
   }
 
@@ -271,11 +275,13 @@ const mapDispatchToProps = (dispatch) => {
     addBookToTempCart: book => dispatch(addBookToTempCart(book)),
     setBookCount: count => dispatch(setBookCount(count)),
     addBookToCart: book => dispatch(addBookToCart(book)),
+    setLogin: isLogin => dispatch(setLogin(isLogin))
   };
 }
 
 const mapStateToProps = (state) => {
-  return { cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+  console.log(state);
+  return { isLogin:state.isLogin, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
 };
 
 export default connect(
