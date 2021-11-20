@@ -5,6 +5,7 @@ import {
   Typography,
   Grid,
   Card,
+  Button,
   CardMedia,
   CardContent
 } from '@mui/material';
@@ -13,11 +14,11 @@ import {
   ShoppingCart,
 } from '@mui/icons-material';
 
-import { setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart } from "./../store/actions"
+import { setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 
 const CartItem = (props) => {
-  const { isLogin, cart, setCart,deleteBookFromCart,addBookToCart, info } = props;
+  const { isLogin, cart, setCart,deleteBookFromCart,addBookToCart, info, clearCart } = props;
 
   // console.log(cart)
   React.useEffect(()=>{
@@ -51,6 +52,11 @@ const CartItem = (props) => {
       console.log(res);
       deleteBookFromCart(book);
     })
+  }
+
+  const PlaceOrder = () => {
+    console.log("Order Placed");
+    clearCart();
   }
 
   const books = cart.map((book,id)=>{
@@ -98,14 +104,27 @@ const CartItem = (props) => {
 
   return(
     <Card sx={{ flexGrow:1, fontFamily: 'McLaren, cursive',paddingTop:2, paddingLeft:2,}}>
-      <Grid container alignItems="center">
+      <Grid sx={{ flexGrow:1}} container justifyContent="space-between">
         <Grid item>
-          <ShoppingCart/>
+          <Grid container alignItems="center" justifyContent="center">
+            <Grid item>
+              <ShoppingCart/>
+            </Grid>
+            <Grid item>
+              <Typography component="div" variant="h6" style={{ paddingLeft:5,textAlign:"left", fontWeight:"bold",fontFamily: 'McLaren, cursive'}}>
+                 My Cart
+              </Typography>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item>
-          <Typography component="div" variant="h6" style={{ textAlign:"left", fontWeight:"bold",fontFamily: 'McLaren, cursive'}}>
-             My Cart
-          </Typography>
+          {
+            (Array.isArray(cart) && cart.length !== 0)?<Button style={{marginRight:15,textTransform:"capitalize", background:"#334756"}} onClick={()=>{PlaceOrder()}}>
+              <Typography variant="h6" style={{ paddingLeft:5,fontSize:14, paddingRight:5, textAlign:"left",color:"white", fontWeight:"bold",fontFamily: 'McLaren, cursive'}}>
+                 Place Order
+              </Typography>
+            </Button>:<div/>
+          }
         </Grid>
       </Grid>
       <CardContent>
@@ -124,6 +143,7 @@ const mapDispatchToProps = (dispatch) => {
     addBookToTempCart: book => dispatch(addBookToTempCart(book)),
     setBookCount: count => dispatch(setBookCount(count)),
     addBookToCart: book => dispatch(addBookToCart(book)),
+    clearCart: book => dispatch(clearCart(book)),
     deleteBookFromCart : index => dispatch(deleteBookFromCart(index)),
   };
 }
