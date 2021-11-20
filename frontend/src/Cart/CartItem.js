@@ -1,70 +1,62 @@
 import React from "react";
 import {
-  AppBar,
   Box,
-  Toolbar,
   IconButton,
   Typography,
-  InputBase,
-  Badge,
-  MenuItem,
-  TextField,
-  Menu,
-  Avatar,
-  ListItemIcon,
-  Tooltip,
-  Modal,
-  Backdrop,
-  Popover,
-  Slide,
-  Dialog,
-  List,
-  ListItem,
-  ListItemText,
-  Drawer,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  Divider,
-  Button,
-  DialogActions,
   Grid,
-  Zoom,
-  Fade,
-  Grow,
   Card,
   CardMedia,
-  CardActions,
   CardContent
 } from '@mui/material';
 import {
-  Login,
-  Search,
-  Edit,
   Delete,
-  ShoppingCartOutlined ,
   ShoppingCart,
-  Logout,
-  Person,
-  ExpandMore,
-  Close,
-  AddShoppingCart,
-  Save,
-  Cancel
 } from '@mui/icons-material';
 
 import { setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart } from "./../store/actions"
 import { connect } from 'react-redux';
 
 const CartItem = (props) => {
-  const { cart, setCart,deleteBookFromCart } = props;
+  const { isLogin, cart, setCart,deleteBookFromCart,addBookToCart, info } = props;
 
   // console.log(cart)
+  React.useEffect(()=>{
+    if(isLogin){
+      fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        if(res.cart !== undefined || res.message !== "No User found!"){
+          res.cart.map((isbn, id)=>{
+            fetch("https://ecom-ducs-api.herokuapp.com/book/"+isbn)
+            .then((res)=>res.json())
+            .then((res)=>{
+              addBookToCart({book:res,count:0})
+            })
+          })
+        }
+      })
+    }
+  },[isLogin])
+
+  const deleteCart = (book) => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isbn: book.isbn })
+    };
+    fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/removeBook/cart",requestOptions)
+    .then((res)=>res.json())
+    .then((res)=>{
+      console.log(res);
+      deleteBookFromCart(book);
+    })
+  }
 
   const books = cart.map((book,id)=>{
     // console.log(book);
     return(
-      <Grid item>
+      <Grid item key={id}>
         <Card sx={{ display: 'flex' }} elevation={4}>
           <Box sx={{ display: 'flex', alignItems: 'center',fontFamily: 'McLaren, cursive' }}>
             <CardMedia
@@ -92,7 +84,7 @@ const CartItem = (props) => {
                   </IconButton>*/}
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={()=>{console.log("Delte clicked");deleteBookFromCart(book);setCart(true)}}>
+                  <IconButton onClick={()=>{console.log("Delte clicked");deleteCart(book);setCart(true)}}>
                     <Delete/>
                   </IconButton>
                 </Grid>
@@ -118,7 +110,7 @@ const CartItem = (props) => {
       </Grid>
       <CardContent>
         <Grid container direction="row" style={{fontFamily: 'McLaren, cursive'}} spacing={1}>
-          {( Array.isArray(cart) && cart.length ) ? books : <Grid item xs={12}>
+          {( Array.isArray(cart) && cart.length && isLogin ) ? books : <Grid item xs={12}>
             <Typography style={{ flex:1, textAlign:"center", paddingBottom:10, fontWeight:"bold",fontFamily: 'McLaren, cursive'}}> No Book in Cart </Typography>
           </Grid>}
         </Grid>
@@ -137,7 +129,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 const mapStateToProps = (state) => {
-  return { cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+  return { isLogin:state.isLogin, info:state.info, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
 };
 
 export default connect(

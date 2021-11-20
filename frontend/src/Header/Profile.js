@@ -1,8 +1,6 @@
 import React from 'react'
 import {
   Grid,
-  Avatar,
-  Paper,
   TextField,
   Dialog,
   DialogTitle,
@@ -12,7 +10,6 @@ import {
   Button,
   Typography,
   IconButton,
-  Box
 } from "@mui/material";
 import {
   Save,
@@ -24,23 +21,29 @@ import { connect } from 'react-redux';
 
 function UpdateProfile(props){
 
-  const { info, user, UserExist, openUpdateProf, setUpdateProf, setInfo } = props;
+  const { info, openUpdateProf, setUpdateProf, setInfo } = props;
   const { enqueueSnackbar } = useSnackbar();
   const [data, setData] = React.useState({age:info.age,phone:info.phone});
 
   const UpdateUser = () => {
-    const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({email: info.email, name:info.name, age:data.age, phone:data.phone})
-    };
-    fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/",requestOptions).
-    then(res => res.json())
-    .then((res)=>{
-      setUpdateProf(false);
-      setInfo({email: info.email, name:info.name, age:data.age, phone:data.phone})
-      enqueueSnackbar(res.message, { variant:"success" });
-    })
+    if(data.phone.length === 10 && data.age >= 12 && data.age < 120){
+      const requestOptions = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({email: info.email, name:info.name, age:data.age, phone:data.phone})
+      };
+      fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/",requestOptions).
+      then(res => res.json())
+      .then((res)=>{
+        setUpdateProf(false);
+        setInfo({email: info.email, name:info.name, age:data.age, phone:data.phone})
+        enqueueSnackbar(res.message, { variant:"success" });
+      })
+    }else{
+      if(data.phone.length !== 10){
+        enqueueSnackbar("Enter Valid Phone Number", { variant:"info" });
+      }
+    }
   }
 // console.log(data)
   return(
@@ -111,6 +114,7 @@ function UpdateProfile(props){
                   id="outlined-size-small"
                   defaultValue={data.age}
                   size="small"
+                  disabled
                   onChange={(e)=>{setData({phone:data.phone,age:e.target.value})}}
                   inputProps={{style: {fontFamily: 'McLaren, cursive'}}}
                   InputLabelProps={{style: {fontFamily: 'McLaren, cursive'}} }

@@ -1,4 +1,4 @@
-import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./constants";
+import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, CLEARCART, DELETEBOOKFROMCART } from "./constants";
 
 export const setInfo = ( info ) => {
   return { type : SETINFO, info }
@@ -20,10 +20,14 @@ export const setBookCount = ( count ) => {
 }
 
 export const addBookToCart = ( book ) => {
-  console.log(book)
+  // console.log(book)
   return { type : ADDBOOKTOCART, book }
 }
 
 export const deleteBookFromCart = ( book ) => {
   return { type : DELETEBOOKFROMCART, book }
+}
+
+export const clearCart = ( book ) => {
+  return { type : CLEARCART, book }
 }

@@ -2,7 +2,6 @@ import React from 'react';
 import {
   AppBar,
   Box,
-  CircularProgress,
   Toolbar,
   IconButton,
   Typography,
@@ -14,48 +13,31 @@ import {
   Avatar,
   ListItemIcon,
   Tooltip,
-  Modal,
-  Backdrop,
   Popover,
   Slide,
   Dialog,
-  List,
-  ListItem,
-  ListItemText,
   Drawer,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  Divider,
   Button,
   DialogActions,
   Grid,
-  Zoom,
-  Fade,
-  Grow,
-  Card,
-  CardMedia,
-  CardActions,
-  CardContent
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
   Login,
   Search,
   ShoppingCartOutlined ,
-  ShoppingCart,
   Logout,
   Person,
   ExpandMore,
-  Close,
   Edit,
-  AddShoppingCart,
-  Save,
   Cancel
 } from '@mui/icons-material';
 import ReactLoading from 'react-loading';
 
-import { setBooks, setBookCount, setInfo, setLogin } from "./../store/actions"
+import { setBooks, setInfo, setLogin, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -110,8 +92,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const PrimarySearchAppBar = (props) => {
 
-  const { loading, setLoading, books, info, setBooks, setInfo, isLogin, setLogin } = props;
-  const classes = useStyles();
+  const { loading, setLoading, books, info, clearCart, setBooks, setInfo, isLogin, setLogin } = props;
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
   // const [books, setBooks] = React.useState([]);
@@ -145,7 +126,7 @@ const PrimarySearchAppBar = (props) => {
       UserExist(info.email)
       .then(res => res.json())
       .then((res)=>{
-        console.log(res)
+        // console.log(res)
         // setUser({email:info.email, age:res.age, phone:res.phone})
         setInfo({email:info.email, age:res.age, phone:res.phone})
         setLogin(true);
@@ -167,7 +148,7 @@ const PrimarySearchAppBar = (props) => {
       fetch("https://ecom-ducs-api.herokuapp.com/book")
       .then((res)=>res.json())
       .then((res)=>{
-        console.log(res);
+        // console.log(res);
         setBooks(res);
         setLoading(false);
       })
@@ -186,19 +167,23 @@ const PrimarySearchAppBar = (props) => {
   }
 
   const CreateUserAccount = async (email, name, age, phone) => {
-    const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, name: name, age:age, phone:phone })
-    };
-    return await fetch("https://ecom-ducs-api.herokuapp.com/user",requestOptions);
+    if(phone.length === 10 && age >= 12 && age < 120){
+      const requestOptions = {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, name: name, age:age, phone:phone })
+      };
+      return await fetch("https://ecom-ducs-api.herokuapp.com/user",requestOptions);
+    }else{
+      enqueueSnackbar("Enter Valid Phone Number", { variant:"info" });
+    }
   }
 
   const createUser = () => {
     CreateUserAccount(respon.profileObj.email, respon.profileObj.name, info.age, info.phone)
     .then(res => res.json())
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       setForm(false);
       setLogin(true);
       enqueueSnackbar(res.message, { variant:"success" });
@@ -214,22 +199,24 @@ const PrimarySearchAppBar = (props) => {
       enqueueSnackbar("Pop Up Closed by user!!!", { variant:"error" });
     }
     else{
-      setInfo({email:response.profileObj.email, age:info.age, phone:info.phone})
-      UserExist(response.profileObj.email)
-      .then(res => res.json())
-      .then((res) => {
-        // console.log(res);
-        if(res.message){
-          setForm(true);
-          setRespon(response);
-        }else{
-          setInfo({email:res.email,age:res.age,phone:res.phone,name:res.name}) //res.phone[0]
-        }
-        setLogin(true);
-        setUser(response);
-      }).catch((err)=>{
-        setLogin(false);
-      })
+      if(response.profileObj !== undefined){
+        setInfo({email:response.profileObj.email, age:info.age, phone:info.phone})
+        UserExist(response.profileObj.email)
+        .then(res => res.json())
+        .then((res) => {
+          // console.log(res);
+          if(res.message){
+            setForm(true);
+            setRespon(response);
+          }else{
+            setInfo({email:res.email,age:res.age,phone:res.phone,name:res.name}) //res.phone[0]
+          }
+          setLogin(true);
+          setUser(response);
+        }).catch((err)=>{
+          setLogin(false);
+        })
+      }
       setDrawer(null);setAnchorEl(null);
     }
   }
@@ -246,7 +233,7 @@ const PrimarySearchAppBar = (props) => {
     onFailure : (res) => console.log(res),
     clientId : CLIENTID,
     cookiePolicy : 'single_host_origin',
-    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);setLogin(false)}
+    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);setLogin(false);clearCart({book:[],count:0})}
   })
 
   const handleSignIn = (event) => {
@@ -320,7 +307,14 @@ const PrimarySearchAppBar = (props) => {
         <IconButton
           size="large"
           color="inherit"
-          onClick={() => setCart(true)}
+          onClick={() => {
+              setCart(isLogin?true:false)
+              if(!isLogin){
+                enqueueSnackbar("Login First !!", { variant:"info" });
+              }
+              return;
+            }
+          }
           >
           <Tooltip title="Cart">
           <Badge color="error">
@@ -568,7 +562,8 @@ function mapDispatchToProps(dispatch) {
   return {
     setInfo : info => dispatch(setInfo(info)),
     setBooks: books => dispatch(setBooks(books)),
-    setLogin: isLogin => dispatch(setLogin(isLogin))
+    setLogin: isLogin => dispatch(setLogin(isLogin)),
+    clearCart: book => dispatch(clearCart(book))
   };
 }
 

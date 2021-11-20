@@ -1,5 +1,5 @@
 import { initialState } from "./../initialState";
-import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
+import { CLEARCART, SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
 
 const updatedData = ( cart, data ) => {
   let newState = []
@@ -22,7 +22,7 @@ const removeData = ( cart , data ) => {
     }
     return;
   });
-  console.log(newState)
+  // console.log(newState)
   return newState;
 }
 // const removePDFData = ( index , state ) => {
@@ -55,6 +55,16 @@ const rootReducer = (state = initialState, action) => {
         books:action.books,
         tempCart:state.tempCart,
         cart:state.cart,
+        info:state.info,
+        isLogin:state.isLogin
+      })
+      break;
+    }
+    case CLEARCART:{
+      return Object.assign({},state,{
+        books:state.books,
+        tempCart:state.tempCart,
+        cart:[],
         info:state.info,
         isLogin:state.isLogin
       })

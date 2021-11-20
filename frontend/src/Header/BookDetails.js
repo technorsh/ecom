@@ -1,56 +1,20 @@
 import React from "react";
 import {
-  AppBar,
-  Box,
-  Toolbar,
-  IconButton,
   Typography,
-  InputBase,
-  Badge,
-  MenuItem,
-  TextField,
-  Menu,
-  Avatar,
-  ListItemIcon,
-  Tooltip,
-  Modal,
-  Backdrop,
-  Popover,
-  Slide,
-  Dialog,
-  List,
-  ListItem,
-  ListItemText,
-  Drawer,
   DialogTitle,
+  IconButton,
+  Dialog,
   DialogContent,
-  DialogContentText,
-  Divider,
-  Button,
   DialogActions,
   Grid,
-  Zoom,
-  Fade,
   Grow,
   Card,
   CardMedia,
-  CardActions,
   CardContent
 } from '@mui/material';
 import CartItem from "./../Cart/CartItem";
 import {
-  Login,
-  Search,
-  ShoppingCartOutlined ,
-  ShoppingCart,
-  Logout,
-  Person,
-  ExpandMore,
-  Close,
-  Edit,
   AddShoppingCart,
-  Save,
-  Cancel
 } from '@mui/icons-material';
 import CountButton from "./../Cart/CountButton";
 import { setBookCount, addBookToTempCart, addBookToCart, setLogin } from "./../store/actions"
@@ -60,9 +24,9 @@ import { useSnackbar } from 'notistack';
 const BookDetails = (props) => {
   const [openBook, setOpenBook] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { isLogin, setLogin, carts, setCart, cart, book, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
+  const { info, isLogin, cart, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
 
-console.log(props);
+// console.log(props);
 
   const checkBook = () => {
     let check = false;
@@ -71,7 +35,7 @@ console.log(props);
       if(cart[i].book.isbn === value.isbn){
           check = true;
           info = {book:cart[i].book, count:cart[i].count}
-          console.log(info)
+          // console.log(info)
           break;
       }
     }
@@ -84,10 +48,20 @@ console.log(props);
 
   const checkItem = () => {
     if(count > 0 && isLogin){
-      addBookToCart(tempCart);
-      addBookToTempCart({book:[],count:0})
-      enqueueSnackbar("Book added to Cart", { variant:"success" });
-      setOpenBook(false);
+      // Add Book to Database
+      const requestOptions = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isbn:tempCart.book.isbn })
+      };
+      fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/addBook/cart",requestOptions)
+      .then((res)=>res.json())
+      .then((res)=>{
+        addBookToCart(tempCart);
+        enqueueSnackbar(res.message, { variant:"success" });
+        addBookToTempCart({book:[],count:0})
+        setOpenBook(false);
+      });
     }else{
       if(!isLogin){
         enqueueSnackbar("Login First!!", { variant:"info" });
@@ -99,7 +73,7 @@ console.log(props);
 
   return(
     <>
-      <Grid item id={key} xs={matches?(matchem?3:4):12}>
+      <Grid id={key} item xs={matches?(matchem?3:4):12}>
         <Grow
           in={true}
           style={{ transformOrigin: '0 0 0' }}
@@ -280,8 +254,8 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 const mapStateToProps = (state) => {
-  console.log(state);
-  return { isLogin:state.isLogin, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+  // console.log(state);
+  return { info:state.info, isLogin:state.isLogin, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
 };
 
 export default connect(

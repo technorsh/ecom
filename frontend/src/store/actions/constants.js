@@ -5,3 +5,4 @@ export const ADDBOOKTOCART = 'ADDBOOKTOCART';
 export const DELETEBOOKFROMCART = 'DELETEBOOKFROMCART';
 export const SETINFO = 'SETINFO';
 export const SETLOGIN = 'SETLOGIN';
+export const CLEARCART = 'CLEARCART';

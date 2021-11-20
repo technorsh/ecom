@@ -4,7 +4,6 @@ import React from "react";
 import { connect } from 'react-redux';
 import { setBooks } from "./store/actions";
 // import books from "./books.json"; // Book fetch from data base here
-import CircularProgress from '@mui/material/CircularProgress';
 
 const App = (props) => {
 
@@ -15,7 +14,7 @@ const App = (props) => {
     fetch("https://ecom-ducs-api.herokuapp.com/book")
     .then((res)=>res.json())
     .then((res)=>{
-      console.log(res);
+      // console.log(res);
       setBooks(res);
       setLoading(false);
     })
