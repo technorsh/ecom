@@ -52,7 +52,7 @@ const BookDetails = (props) => {
       const requestOptions = {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ isbn:tempCart.book.isbn })
+          body: JSON.stringify({ isbn:tempCart.book.isbn, count:count })
       };
       fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/addBook/cart",requestOptions)
       .then((res)=>res.json())

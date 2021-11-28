@@ -27,14 +27,18 @@ const CartItem = (props) => {
       .then((res) => res.json())
       .then((res) => {
         console.log(res);
-        if(res.cart !== undefined || res.message !== "No User found!"){
-          res.cart.map((isbn, id)=>{
-            fetch("https://ecom-ducs-api.herokuapp.com/book/"+isbn)
-            .then((res)=>res.json())
-            .then((res)=>{
-              addBookToCart({book:res,count:0})
+        if(res.message !== "No User found!"){
+          if(res.cart !== undefined && Array.isArray(res.cart) && res.cart.length !== 0){
+            res.cart.map((data, id)=>{
+              fetch("https://ecom-ducs-api.herokuapp.com/book/"+data.isbn)
+              .then((res)=>res.json())
+              .then((res)=>{
+                  console.log(res);
+                  addBookToCart({book:res,count:data.count})
+
+              })
             })
-          })
+          }
         }
       })
     }
