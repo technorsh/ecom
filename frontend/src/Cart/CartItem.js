@@ -13,12 +13,13 @@ import {
   Delete,
   ShoppingCart,
 } from '@mui/icons-material';
-
+import { useSnackbar } from 'notistack';
 import { setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 
 const CartItem = (props) => {
   const { isLogin, cart, setCart,deleteBookFromCart,addBookToCart, info, clearCart } = props;
+  const { enqueueSnackbar } = useSnackbar();
 
   // console.log(cart)
   React.useEffect(()=>{
@@ -35,7 +36,6 @@ const CartItem = (props) => {
               .then((res)=>{
                   console.log(res);
                   addBookToCart({book:res,count:data.count})
-
               })
             })
           }
@@ -45,15 +45,17 @@ const CartItem = (props) => {
   },[isLogin])
 
   const deleteCart = (book) => {
+    console.log(book);
     const requestOptions = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isbn: book.isbn })
+        body: JSON.stringify({ isbn: book.book.isbn })
     };
     fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/removeBook/cart",requestOptions)
     .then((res)=>res.json())
     .then((res)=>{
       console.log(res);
+      enqueueSnackbar(res.message, { variant:"success" });
       deleteBookFromCart(book);
     })
   }

@@ -12,8 +12,8 @@ const CountButton = (props) => {
 
 
   React.useEffect(()=>{
-    if(count > 3){
-      enqueueSnackbar("Book Count Should be <= 3", { variant:"info" });
+    if(count > 10){
+      enqueueSnackbar("Book Count Should be <= 10", { variant:"info" });
     }
   },[count])
 
@@ -27,7 +27,7 @@ const CountButton = (props) => {
 
   return (
     <ButtonGroup size="small" aria-label="small outlined button group">
-      <Button disabled={count >= 3} onClick={()=>handleIncrement()}>+</Button>
+      <Button disabled={count >= 10} onClick={()=>handleIncrement()}>+</Button>
       {displayCounter && <Button disabled><Typography style={{fontWeight:"bold", fontSize:12, fontFamily: 'McLaren, cursive'}}>{count}</Typography></Button>}
       {displayCounter && <Button onClick={()=>handleDecrement()}>-</Button>}
     </ButtonGroup>
