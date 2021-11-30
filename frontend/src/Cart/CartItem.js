@@ -14,11 +14,11 @@ import {
   ShoppingCart,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { whislist, setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
+import { whislist, setBookCount,addBookToWhislist, deleteBookFromWhislist, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 
 const CartItem = (props) => {
-  const { isLogin, cart, setCart,deleteBookFromCart,addBookToCart, info, clearCart } = props;
+  const { isLogin, cart, setCart,addBookToWhislist, deleteBookFromWhislist,deleteBookFromCart,addBookToCart, info, clearCart } = props;
   const { enqueueSnackbar } = useSnackbar();
 
   // console.log(cart)
@@ -36,6 +36,16 @@ const CartItem = (props) => {
               .then((res)=>{
                   console.log(res);
                   addBookToCart({book:res,count:data.count})
+              })
+            })
+          }
+          if(res.wishlist !== undefined && Array.isArray(res.wishlist) && res.wishlist.length !== 0){
+            res.wishlist.map((data, id)=>{
+              fetch("https://ecom-ducs-api.herokuapp.com/book/"+data)
+              .then((res)=>res.json())
+              .then((res)=>{
+                  console.log(res);
+                  addBookToWhislist({book:res})
               })
             })
           }
@@ -151,6 +161,8 @@ const mapDispatchToProps = (dispatch) => {
     addBookToCart: book => dispatch(addBookToCart(book)),
     clearCart: book => dispatch(clearCart(book)),
     deleteBookFromCart : index => dispatch(deleteBookFromCart(index)),
+    addBookToWhislist: book => dispatch(addBookToWhislist(book)),
+    deleteBookFromWhislist: book => dispatch(deleteBookFromWhislist(book))
   };
 }
 

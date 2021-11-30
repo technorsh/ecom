@@ -1,4 +1,4 @@
-import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, ADDBOOKTOWHISHLIST, DELETEBOOKTOWHISHLIST, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, CLEARCART, DELETEBOOKFROMCART } from "./constants";
+import { CLEARWISHLIST, SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, ADDBOOKTOWHISHLIST, DELETEBOOKTOWHISHLIST, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, CLEARCART, DELETEBOOKFROMCART } from "./constants";
 
 export const setInfo = ( info ) => {
   return { type : SETINFO, info }
@@ -38,4 +38,8 @@ export const deleteBookFromCart = ( book ) => {
 
 export const clearCart = ( book ) => {
   return { type : CLEARCART, book }
+}
+
+export const clearWishlist = ( book ) => {
+  return { type : CLEARWISHLIST, book }
 }

@@ -1,5 +1,5 @@
 import { initialState } from "./../initialState";
-import { CLEARCART, SETLOGIN, SETINFO, ADDBOOKTOWHISHLIST, DELETEBOOKTOWHISHLIST, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
+import { CLEARWISHLIST, CLEARCART, SETLOGIN, SETINFO, ADDBOOKTOWHISHLIST, DELETEBOOKTOWHISHLIST, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, DELETEBOOKFROMCART } from "./../actions/constants";
 
 const updatedData = ( cart, data ) => {
   let newState = []
@@ -103,6 +103,17 @@ const rootReducer = (state = initialState, action) => {
         info:state.info,
         isLogin:state.isLogin,
         whislist:state.whislist
+      })
+      break;
+    }
+    case CLEARWISHLIST:{
+      return Object.assign({},state,{
+        books:state.books,
+        tempCart:state.tempCart,
+        cart:state.cart,
+        info:state.info,
+        isLogin:state.isLogin,
+        whislist:[]
       })
       break;
     }

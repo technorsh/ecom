@@ -44,7 +44,7 @@ import {
 } from '@mui/icons-material';
 import ReactLoading from 'react-loading';
 
-import { setBooks,addBookToCart, deleteBookFromWhislist, setInfo, setLogin, clearCart } from "./../store/actions"
+import { clearWishlist, setBooks,addBookToCart, deleteBookFromWhislist, setInfo, setLogin, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -99,7 +99,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const PrimarySearchAppBar = (props) => {
 
-  const { addBookToCart, whislist, carts, deleteBookFromWhislist, loading, setLoading, books, info, clearCart, setBooks, setInfo, isLogin, setLogin } = props;
+  const { clearWishlist, addBookToCart, whislist, carts, deleteBookFromWhislist, loading, setLoading, books, info, clearCart, setBooks, setInfo, isLogin, setLogin } = props;
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
   // const [books, setBooks] = React.useState([]);
@@ -241,7 +241,7 @@ const PrimarySearchAppBar = (props) => {
     onFailure : (res) => console.log(res),
     clientId : CLIENTID,
     cookiePolicy : 'single_host_origin',
-    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);setLogin(false);clearCart({book:[],count:0})}
+    onLogoutSuccess : (res) => {setUser(null);setDrawer(null);setAnchorEl(null);setLogin(false);clearCart({book:[],count:0});clearWishlist({book:[]});}
   })
 
   const handleSignIn = (event) => {
@@ -324,7 +324,7 @@ const PrimarySearchAppBar = (props) => {
             }
           }
           >
-          <Tooltip title="Whislist">
+          <Tooltip title="Wishlist">
             <Badge badgeContent={whislist.length} color="error">
               <Favorite/>
             </Badge>
@@ -382,6 +382,49 @@ const PrimarySearchAppBar = (props) => {
     clearCart();
   }
 
+  const removeFromWishlist = (value, ok) => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isbn:value.isbn })
+    };
+    fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/removeBook/wishlist",requestOptions)
+    .then((res)=>res.json())
+    .then((res)=>{
+      // console.log(res);
+      deleteBookFromWhislist({book:value})
+      // console.log(whislist);
+      if(whislist.length == 1){
+        setOpenWhislist(false);
+      }
+      if(ok) enqueueSnackbar(res.message, { variant:"success" });
+    });
+  }
+
+
+  const moveToCartItem = (book, count) => {
+    if(count > 0 && isLogin){
+      // Add Book to Database
+      const requestOptions = {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ isbn:book.isbn, count:count })
+      };
+      fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/addBook/cart",requestOptions)
+      .then((res)=>res.json())
+      .then((res)=>{
+        enqueueSnackbar("Book Moved to Cart", { variant:"success" });
+        addBookToCart({book:book, count:1});
+        removeFromWishlist(book, false);
+        // addBookToCart({book:book,count:count});
+        // enqueueSnackbar(res.message, { variant:"success" });
+        // addBookToTempCart({book:[],count:0})
+        // setOpenBook(false);
+      });
+    }
+  }
+
+
   const whislistBooks = whislist.map((book,id)=>{
     // console.log(book);
     return(
@@ -405,14 +448,18 @@ const PrimarySearchAppBar = (props) => {
               </Typography>
               <Grid container direction="row" justifyContent="flex-end" alignItems="flex-end" spacing={1}>
                 <Grid item>
-                  <IconButton onClick={()=>{enqueueSnackbar("Book Moved to Cart", { variant:"success" });addBookToCart({book:book.book, count:1});deleteBookFromWhislist({book:book.book});}}>
-                    <AddShoppingCart/>
-                  </IconButton>
+                  <Tooltip title="Move to Cart">
+                    <IconButton onClick={()=>{moveToCartItem(book.book,1);}}>
+                      <AddShoppingCart/>
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
                 <Grid item>
-                  <IconButton onClick={()=>{console.log("Delte clicked");deleteBookFromWhislist({book:book.book});}}>
-                    <Delete/>
-                  </IconButton>
+                  <Tooltip title="Remove from wishlist">
+                    <IconButton onClick={()=>{console.log("Delte clicked");removeFromWishlist(book.book,true);}}>
+                      <Delete/>
+                    </IconButton>
+                  </Tooltip>
                 </Grid>
               </Grid>
             </CardContent>
@@ -552,14 +599,14 @@ const PrimarySearchAppBar = (props) => {
                 <ShoppingCartOutlined sx={{paddingRight:1}}/>
               </Grid>
               <Grid item>
-                My Whislist
+                My Wishlist
               </Grid>
             </Grid>
           </DialogTitle>
           <DialogContent>
           <Grid container spacing={2} justifyContent="center" alignItems="center" direction="column">
             {Array.isArray(whislist) && whislist.length !==0?whislistBooks:<Grid item><Typography variant="subtitle1" color="text.secondary" component="div" style={{fontFamily: 'McLaren, cursive', paddingTop:10}}>
-              Whislist is Empty 🥺
+              Wishlist is Empty 🥺
             </Typography></Grid>}
           </Grid>
           </DialogContent>
@@ -664,6 +711,7 @@ function mapDispatchToProps(dispatch) {
     setBooks: books => dispatch(setBooks(books)),
     setLogin: isLogin => dispatch(setLogin(isLogin)),
     clearCart: book => dispatch(clearCart(book)),
+    clearWishlist: book => dispatch(clearWishlist(book)),
     deleteBookFromWhislist: book => dispatch(deleteBookFromWhislist(book)),
     addBookToCart: book => dispatch(addBookToCart(book)),
   };

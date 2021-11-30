@@ -28,7 +28,7 @@ const BookDetails = (props) => {
   const { enqueueSnackbar } = useSnackbar();
   const { info, books, whislist, addBookToWhislist, deleteBookFromWhislist, isLogin, cart, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
 
-console.log(props.whislist);
+// console.log(props.whislist);
 
   const checkBook = () => {
     let check = false;
@@ -82,6 +82,35 @@ console.log(props.whislist);
       return book.book.isbn === index;
     });
   }
+  const addWhislist = () => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isbn:value.isbn })
+    };
+    fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/addBook/wishlist",requestOptions)
+    .then((res)=>res.json())
+    .then((res)=>{
+      // console.log(res);
+      addBookToWhislist({book:value})
+      enqueueSnackbar(res.message, { variant:"success" });
+    });
+  }
+
+  const removeFromWishlist = () => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isbn:value.isbn })
+    };
+    fetch("https://ecom-ducs-api.herokuapp.com/user/"+info.email+"/removeBook/wishlist",requestOptions)
+    .then((res)=>res.json())
+    .then((res)=>{
+      // console.log(res);
+      deleteBookFromWhislist({book:value})
+      enqueueSnackbar(res.message, { variant:"success" });
+    });
+  }
 
   return(
     <>
@@ -103,14 +132,14 @@ console.log(props.whislist);
             <div style={{position:"absolute",right:0,top:0,background:"#ffffff",borderBottomLeftRadius:25,padding:2}}>
               {
                 !checkExistBook(value.isbn)?
-                <Tooltip title="Add to Whislist">
-                  <IconButton size="small" onClick={()=>{console.log("whislist clicked..");addBookToWhislist({book:value})}} >
+                <Tooltip title="Add to Wishlist">
+                  <IconButton size="small" onClick={()=>{console.log("whislist clicked..");addWhislist();}} >
                     <Favorite color="primary"/>
                   </IconButton>
                 </Tooltip>
                 :
-                <Tooltip title="Remove from Whislist">
-                  <IconButton size="small" onClick={()=>{console.log("whislist deletd..");deleteBookFromWhislist({book:value})}} >
+                <Tooltip title="Remove from Wishlist">
+                  <IconButton size="small" onClick={()=>{console.log("whislist deletd..");removeFromWishlist();}} >
                     <Favorite sx={{color:"tomato"}}/>
                   </IconButton>
                 </Tooltip>
