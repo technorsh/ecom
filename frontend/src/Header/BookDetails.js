@@ -131,7 +131,7 @@ const BookDetails = (props) => {
             />
             <div style={{position:"absolute",right:0,top:0,background:"#ffffff",borderBottomLeftRadius:25,padding:2}}>
               {
-                !checkExistBook(value.isbn)?
+                isLogin?(!checkExistBook(value.isbn)?
                 <Tooltip title="Add to Wishlist">
                   <IconButton size="small" onClick={()=>{console.log("whislist clicked..");addWhislist();}} >
                     <Favorite color="primary"/>
@@ -141,6 +141,10 @@ const BookDetails = (props) => {
                 <Tooltip title="Remove from Wishlist">
                   <IconButton size="small" onClick={()=>{console.log("whislist deletd..");removeFromWishlist();}} >
                     <Favorite sx={{color:"tomato"}}/>
+                  </IconButton>
+                </Tooltip>):<Tooltip title="Login First">
+                  <IconButton size="small" onClick={()=>{console.log("login first..")}} >
+                    <Favorite color="primary"/>
                   </IconButton>
                 </Tooltip>
               }
