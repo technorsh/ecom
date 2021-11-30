@@ -14,7 +14,7 @@ import {
   ShoppingCart,
 } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
-import { setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
+import { whislist, setBookCount, addBookToTempCart, addBookToCart, deleteBookFromCart, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 
 const CartItem = (props) => {
@@ -155,7 +155,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 const mapStateToProps = (state) => {
-  return { isLogin:state.isLogin, info:state.info, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+  return { whislist:state.whislist, isLogin:state.isLogin, info:state.info, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
 };
 
 export default connect(

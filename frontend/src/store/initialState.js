@@ -10,5 +10,6 @@ export const initialState = {
     age:null,
     phone:null
   },
+  whislist:[],
   isLogin:false,
 }

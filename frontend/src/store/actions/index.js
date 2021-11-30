@@ -1,4 +1,4 @@
-import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, CLEARCART, DELETEBOOKFROMCART } from "./constants";
+import { SETLOGIN, SETINFO, ADDBOOKTOTEMPCART, ADDBOOKTOWHISHLIST, DELETEBOOKTOWHISHLIST, SETBOOKS, PLUSMINUSBOOK, ADDBOOKTOCART, CLEARCART, DELETEBOOKFROMCART } from "./constants";
 
 export const setInfo = ( info ) => {
   return { type : SETINFO, info }
@@ -13,6 +13,14 @@ export const setBooks = ( books ) => {
 
 export const addBookToTempCart = ( book ) => {
   return { type : ADDBOOKTOTEMPCART, book }
+}
+
+export const addBookToWhislist = ( book ) => {
+  return { type : ADDBOOKTOWHISHLIST, book }
+}
+
+export const deleteBookFromWhislist = ( book ) => {
+  return { type : DELETEBOOKTOWHISHLIST, book }
 }
 
 export const setBookCount = ( count ) => {

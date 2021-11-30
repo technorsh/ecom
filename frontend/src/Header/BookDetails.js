@@ -10,23 +10,25 @@ import {
   Grow,
   Card,
   CardMedia,
-  CardContent
+  CardContent,
+  Tooltip
 } from '@mui/material';
 import CartItem from "./../Cart/CartItem";
 import {
   AddShoppingCart,
+  Favorite
 } from '@mui/icons-material';
 import CountButton from "./../Cart/CountButton";
-import { setBookCount, addBookToTempCart, addBookToCart, setLogin } from "./../store/actions"
+import { setBookCount, addBookToWhislist, deleteBookFromWhislist, addBookToTempCart, addBookToCart, setLogin } from "./../store/actions"
 import { connect } from 'react-redux';
 import { useSnackbar } from 'notistack';
 
 const BookDetails = (props) => {
   const [openBook, setOpenBook] = React.useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const { info, isLogin, cart, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
+  const { info, books, whislist, addBookToWhislist, deleteBookFromWhislist, isLogin, cart, value, matchem, matches, key, count, tempCart, addBookToTempCart, setBookCount, addBookToCart } = props;
 
-// console.log(props);
+console.log(props.whislist);
 
   const checkBook = () => {
     let check = false;
@@ -71,6 +73,16 @@ const BookDetails = (props) => {
     }
   }
 
+  const checkExistBook = (index) => {
+    // console.log(index,"====",book.isbn);
+    return whislist.some( book => {
+      // console.log(index,"====",);
+
+      // console.log(book.isbn === index);
+      return book.book.isbn === index;
+    });
+  }
+
   return(
     <>
       <Grid id={key} item xs={matches?(matchem?3:4):12}>
@@ -79,7 +91,7 @@ const BookDetails = (props) => {
           style={{ transformOrigin: '0 0 0' }}
           {...(true? { timeout: 1000 } : {})}
           >
-          <Card sx={{ maxWidth: 300 , fontFamily: 'McLaren, cursive',}}>
+          <Card sx={{ maxWidth: 300 , fontFamily: 'McLaren, cursive',position:"relative"}}>
             <CardMedia
               title="View Book Details"
               onClick={()=>{setOpenBook(true);checkBook()}}
@@ -88,6 +100,22 @@ const BookDetails = (props) => {
               sx={{height:160,cursor: "pointer"}}
               image={value.thumbnailUrl}
             />
+            <div style={{position:"absolute",right:0,top:0,background:"#ffffff",borderBottomLeftRadius:25,padding:2}}>
+              {
+                !checkExistBook(value.isbn)?
+                <Tooltip title="Add to Whislist">
+                  <IconButton size="small" onClick={()=>{console.log("whislist clicked..");addBookToWhislist({book:value})}} >
+                    <Favorite color="primary"/>
+                  </IconButton>
+                </Tooltip>
+                :
+                <Tooltip title="Remove from Whislist">
+                  <IconButton size="small" onClick={()=>{console.log("whislist deletd..");deleteBookFromWhislist({book:value})}} >
+                    <Favorite sx={{color:"tomato"}}/>
+                  </IconButton>
+                </Tooltip>
+              }
+            </div>
             <CardContent>
               <Grid container justifyContent="space-between" style={{fontFamily: 'McLaren, cursive'}}>
                 <Grid item >
@@ -114,7 +142,9 @@ const BookDetails = (props) => {
                       })}
                     </Grid>
                     <Grid item>
-                      <IconButton size="small" onClick={()=>{setOpenBook(true);checkBook();}}><AddShoppingCart/></IconButton>
+                      <Tooltip title="Add to Cart">
+                        <IconButton size="small" onClick={()=>{setOpenBook(true);checkBook();}}><AddShoppingCart/></IconButton>
+                      </Tooltip>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -176,7 +206,9 @@ const BookDetails = (props) => {
                           <CountButton />
                         </Grid>
                         <Grid item>
-                          <IconButton size="small" onClick={()=>{checkItem()}}><AddShoppingCart/></IconButton>
+                          <Tooltip title="Click to Add">
+                            <IconButton size="small" onClick={()=>{checkItem()}}><AddShoppingCart/></IconButton>
+                          </Tooltip>
                         </Grid>
                       </Grid>
                     </Grid>
@@ -236,7 +268,6 @@ const BookDetails = (props) => {
         </Grid>
         </DialogContent>
         <DialogActions>
-
         </DialogActions>
       </Dialog>
 
@@ -249,13 +280,15 @@ const mapDispatchToProps = (dispatch) => {
     addBookToTempCart: book => dispatch(addBookToTempCart(book)),
     setBookCount: count => dispatch(setBookCount(count)),
     addBookToCart: book => dispatch(addBookToCart(book)),
-    setLogin: isLogin => dispatch(setLogin(isLogin))
+    setLogin: isLogin => dispatch(setLogin(isLogin)),
+    addBookToWhislist: book => dispatch(addBookToWhislist(book)),
+    deleteBookFromWhislist: book => dispatch(deleteBookFromWhislist(book))
   };
 }
 
 const mapStateToProps = (state) => {
   // console.log(state);
-  return { info:state.info, isLogin:state.isLogin, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
+  return { whislist:state.whislist, info:state.info, isLogin:state.isLogin, cart:state.cart, books: state.books, tempCart:state.tempCart, book:state.tempCart.book, count:state.tempCart.count };
 };
 
 export default connect(

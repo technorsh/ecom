@@ -23,6 +23,9 @@ import {
   Button,
   DialogActions,
   Grid,
+  Card,
+  CardMedia,
+  CardContent,
 } from '@mui/material';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {
@@ -33,11 +36,15 @@ import {
   Person,
   ExpandMore,
   Edit,
-  Cancel
+  Favorite,
+  Cancel,
+  Delete,
+  Add,
+  AddShoppingCart
 } from '@mui/icons-material';
 import ReactLoading from 'react-loading';
 
-import { setBooks, setInfo, setLogin, clearCart } from "./../store/actions"
+import { setBooks,addBookToCart, deleteBookFromWhislist, setInfo, setLogin, clearCart } from "./../store/actions"
 import { connect } from 'react-redux';
 import { styled, alpha, useTheme } from '@mui/material/styles';
 import { makeStyles } from '@mui/styles';
@@ -92,7 +99,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const PrimarySearchAppBar = (props) => {
 
-  const { loading, setLoading, books, info, clearCart, setBooks, setInfo, isLogin, setLogin } = props;
+  const { addBookToCart, whislist, carts, deleteBookFromWhislist, loading, setLoading, books, info, clearCart, setBooks, setInfo, isLogin, setLogin } = props;
   const { enqueueSnackbar } = useSnackbar();
   const theme = useTheme();
   // const [books, setBooks] = React.useState([]);
@@ -109,6 +116,7 @@ const PrimarySearchAppBar = (props) => {
   const [user, setUser] = React.useState(null);
   const [openProf, setProf] = React.useState(false);
   const [openUpdateProf, setUpdateProf] = React.useState(false);
+  const [openWhislist, setOpenWhislist ] = React.useState(false);
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -308,6 +316,24 @@ const PrimarySearchAppBar = (props) => {
           size="large"
           color="inherit"
           onClick={() => {
+              setOpenWhislist(isLogin?true:false)
+              if(!isLogin){
+                enqueueSnackbar("Login First !!", { variant:"info" });
+              }
+              return;
+            }
+          }
+          >
+          <Tooltip title="Whislist">
+            <Badge badgeContent={whislist.length} color="error">
+              <Favorite/>
+            </Badge>
+          </Tooltip>
+        </IconButton>
+        <IconButton
+          size="large"
+          color="inherit"
+          onClick={() => {
               setCart(isLogin?true:false)
               if(!isLogin){
                 enqueueSnackbar("Login First !!", { variant:"info" });
@@ -317,11 +343,12 @@ const PrimarySearchAppBar = (props) => {
           }
           >
           <Tooltip title="Cart">
-          <Badge color="error">
-            <ShoppingCartOutlined />
-          </Badge>
+            <Badge badgeContent={carts.length} color="primary">
+              <ShoppingCartOutlined />
+            </Badge>
           </Tooltip>
         </IconButton>
+
         <IconButton
           size="large"
           edge="end"
@@ -349,6 +376,52 @@ const PrimarySearchAppBar = (props) => {
       <BookDetails key={key} value={value} matchem={matchem} matches={matches} carts={cart} setCart={setCart}/>
     )
   })
+
+  const PlaceOrder = () => {
+    console.log("Order Placed");
+    clearCart();
+  }
+
+  const whislistBooks = whislist.map((book,id)=>{
+    // console.log(book);
+    return(
+      <Grid item key={id}>
+        <Card sx={{ display: 'flex' }} elevation={2}>
+          <Box sx={{ display: 'flex', alignItems: 'center',fontFamily: 'McLaren, cursive' }}>
+            <CardMedia
+              component="img"
+              sx={{ width: 120 }}
+              image={book.book.thumbnailUrl}
+              alt={book.book.title}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <CardContent>
+              <Typography component="div" variant="h6" style={{fontFamily: 'McLaren, cursive'}}>
+                {book.book.title}
+              </Typography>
+              <Typography variant="subtitle1" color="text.secondary" component="div" style={{fontFamily: 'McLaren, cursive'}}>
+                {book.book.authors.join(", ")}
+              </Typography>
+              <Grid container direction="row" justifyContent="flex-end" alignItems="flex-end" spacing={1}>
+                <Grid item>
+                  <IconButton onClick={()=>{enqueueSnackbar("Book Moved to Cart", { variant:"success" });addBookToCart({book:book.book, count:1});deleteBookFromWhislist({book:book.book});}}>
+                    <AddShoppingCart/>
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <IconButton onClick={()=>{console.log("Delte clicked");deleteBookFromWhislist({book:book.book});}}>
+                    <Delete/>
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Box>
+        </Card>
+      </Grid>
+    )
+  })
+
 
   return (
     <Box sx={{ flexGrow: 1}}>
@@ -466,6 +539,33 @@ const PrimarySearchAppBar = (props) => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog
+          open={openWhislist}
+          onClose={()=>{setOpenWhislist(false);}}
+          scroll={'body'}
+          sx={{padding:0}}
+          >
+          <DialogTitle id="scroll-dialog-title" sx={{fontFamily: 'McLaren, cursive',fontWeight:"bold"}}>
+            <Grid container justifyContent="center" alignItems={"center"}>
+              <Grid item>
+                <ShoppingCartOutlined sx={{paddingRight:1}}/>
+              </Grid>
+              <Grid item>
+                My Whislist
+              </Grid>
+            </Grid>
+          </DialogTitle>
+          <DialogContent>
+          <Grid container spacing={2} justifyContent="center" alignItems="center" direction="column">
+            {Array.isArray(whislist) && whislist.length !==0?whislistBooks:<Grid item><Typography variant="subtitle1" color="text.secondary" component="div" style={{fontFamily: 'McLaren, cursive', paddingTop:10}}>
+              Whislist is Empty 🥺
+            </Typography></Grid>}
+          </Grid>
+          </DialogContent>
+          <DialogActions>
+          </DialogActions>
+        </Dialog>
         <Dialog
           open={openProf}
           onClose={()=>setProf(false)}
@@ -563,13 +663,15 @@ function mapDispatchToProps(dispatch) {
     setInfo : info => dispatch(setInfo(info)),
     setBooks: books => dispatch(setBooks(books)),
     setLogin: isLogin => dispatch(setLogin(isLogin)),
-    clearCart: book => dispatch(clearCart(book))
+    clearCart: book => dispatch(clearCart(book)),
+    deleteBookFromWhislist: book => dispatch(deleteBookFromWhislist(book)),
+    addBookToCart: book => dispatch(addBookToCart(book)),
   };
 }
 
 const mapStateToProps = state => {
   // console.log(state);
-  return { books: state.books, info : state.info, isLogin : state.isLogin };
+  return { whislist:state.whislist, books: state.books, info : state.info, isLogin : state.isLogin , carts:state.cart};
 };
 
 export default connect(
